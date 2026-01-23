@@ -1,14 +1,11 @@
 import { useState } from 'react';
 import { Button } from '../components/Button';
 import { Input } from '../components/Input';
-import { MapPin, CheckCircle, Shield, Search, Loader2, Navigation, Check } from 'lucide-react';
+import { MapPin, CheckCircle, Shield, Search, Loader2, Navigation } from 'lucide-react';
 import { fetchAddressByCEP } from '../services/cep';
 import { fetchAddressByCoords } from '../services/geocoding';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { supabase } from '../lib/supabase';
-
-
 
 type LocationState = {
     neighborhood: string;
@@ -252,12 +249,13 @@ export default function Onboarding() {
                     </div>
                     <div className="pt-6 space-y-3">
                         <Button
-                            className="w-full text-lg h-14"
-                            disabled={!acceptedTerms}
+                            className="w-full text-lg h-14 flex items-center justify-center gap-2"
+                            disabled={!acceptedTerms || isFinishing}
                             onClick={handleFinish}
                         >
 
-                            Concordar e Entrar
+                            {isFinishing && <Loader2 className="animate-spin" size={20} />}
+                            {isFinishing ? 'Criando conta...' : 'Concordar e Entrar'}
                         </Button>
                         <Button
                             variant="ghost"

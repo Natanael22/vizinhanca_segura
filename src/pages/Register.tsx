@@ -3,13 +3,10 @@ import { Input } from '../components/Input';
 import { Button } from '../components/Button';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, RefreshCw, ShieldCheck } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
 import { generateRandomPseudonym } from '../utils/pseudonym';
 
 export default function Register() {
     const navigate = useNavigate();
-    const { signUp } = useAuth();
-    const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [formData, setFormData] = useState({
         pseudonym: generateRandomPseudonym(),
@@ -73,7 +70,7 @@ export default function Register() {
                         className="absolute right-3 top-[34px] p-2 text-primary-400 hover:text-accent-600 transition-colors"
                         title="Gerar novo nome"
                     >
-                        <RefreshCw size={20} className={loading ? 'animate-spin' : ''} />
+                        <RefreshCw size={20} />
                     </button>
                     <p className="text-[10px] text-primary-400 mt-1 flex items-center gap-1">
                         <ShieldCheck size={12} />
@@ -125,8 +122,8 @@ export default function Register() {
                 )}
 
                 <div className="pt-4">
-                    <Button type="submit" className="w-full" disabled={loading}>
-                        {loading ? 'Criando conta...' : 'Continuar'}
+                    <Button type="submit" className="w-full">
+                        Continuar
                     </Button>
                 </div>
             </form>

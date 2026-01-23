@@ -3,7 +3,7 @@ import { useAlerts } from '../context/AlertContext';
 import { ALERT_TYPES, type AlertType } from '../types/alert';
 import { Button } from '../components/Button';
 import { MapContainer, TileLayer, Marker } from 'react-leaflet';
-import { ArrowLeft, Clock, MapPin, ThumbsUp, Send, PointerIcon, LocateFixed, ShieldUser } from 'lucide-react';
+import { ArrowLeft, Clock, MapPin, ThumbsUp, Send, LocateFixed, ShieldUser } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useState } from 'react';

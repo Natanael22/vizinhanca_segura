@@ -1,6 +1,6 @@
 import { EmergencyButton } from '../components/Emergency/EmergencyButton';
 import { BottomNav } from '../components/Navigation/BottomNav';
-import { AlertTriangle, ShieldAlert, HeartPulse, Flame, ShieldUser } from 'lucide-react';
+import { AlertTriangle, ShieldAlert, HeartPulse, Flame } from 'lucide-react';
 
 export default function Emergency() {
     return (
