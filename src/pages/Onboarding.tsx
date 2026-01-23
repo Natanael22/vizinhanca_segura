@@ -1,10 +1,14 @@
 import { useState } from 'react';
 import { Button } from '../components/Button';
 import { Input } from '../components/Input';
-import { useNavigate } from 'react-router-dom';
-import { MapPin, CheckCircle, Shield, Search, Loader2, Navigation } from 'lucide-react';
+import { MapPin, CheckCircle, Shield, Search, Loader2, Navigation, Check } from 'lucide-react';
 import { fetchAddressByCEP } from '../services/cep';
 import { fetchAddressByCoords } from '../services/geocoding';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { supabase } from '../lib/supabase';
+
+
 
 type LocationState = {
     neighborhood: string;
@@ -14,9 +18,17 @@ type LocationState = {
 
 export default function Onboarding() {
     const navigate = useNavigate();
+    const routeLocation = useLocation();
+    const { signUp } = useAuth();
+
+    // Get registration data from Register page
+    const registrationData = routeLocation.state?.registrationData;
+
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
     const [isLocating, setIsLocating] = useState(false);
+    const [isFinishing, setIsFinishing] = useState(false);
+
     const [cep, setCep] = useState('');
     const [location, setLocation] = useState<LocationState | null>(null);
     const [error, setError] = useState('');
@@ -75,15 +87,40 @@ export default function Onboarding() {
         }
     };
 
-    const handleFinish = () => {
-        // In a real app, save location/accept terms to backend
-        navigate('/home');
-    };
+    const handleFinish = async () => {
+        if (!location) {
+            setError('Por favor, identifique seu bairro primeiro.');
+            return;
+        }
 
-    // Auto-attempt geolocation on mount (optional, maybe better requires user action to avoid permission spam? 
-    // The prompt says "pegue a localização atual", implying proactive action, but usually better UX to let user click.)
-    // Let's stick to a button "Usar minha localização" or auto-trigger? 
-    // Usually auto-trigger is aggressive. I'll add a big button.
+        if (!registrationData) {
+            setError('Dados de cadastro não encontrados. Por favor, recomece.');
+            return;
+        }
+
+        setIsFinishing(true);
+        setError('');
+        try {
+            // Perform single signUp with ALL data
+            await signUp(
+                registrationData.email,
+                registrationData.password,
+                registrationData.pseudonym,
+                registrationData.phone,
+                location.neighborhood,
+                location.city,
+                location.state
+
+            );
+
+            navigate('/home');
+        } catch (err: any) {
+            console.error('Registration error:', err);
+            setError(err.message || 'Erro ao criar conta. Verifique os dados e tente novamente.');
+        } finally {
+            setIsFinishing(false);
+        }
+    };
 
     return (
         <div className="p-6 flex flex-col h-full bg-white animate-in slide-in-from-right duration-500">
@@ -213,13 +250,13 @@ export default function Onboarding() {
                             </span>
                         </label>
                     </div>
-
                     <div className="pt-6 space-y-3">
                         <Button
                             className="w-full text-lg h-14"
                             disabled={!acceptedTerms}
                             onClick={handleFinish}
                         >
+
                             Concordar e Entrar
                         </Button>
                         <Button

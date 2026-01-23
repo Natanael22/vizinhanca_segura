@@ -14,6 +14,7 @@ export default function Register() {
     const [formData, setFormData] = useState({
         pseudonym: generateRandomPseudonym(),
         email: '',
+        phone: '',
         password: '',
         confirmPassword: '',
     });
@@ -36,14 +37,11 @@ export default function Register() {
             return;
         }
 
-        setLoading(true);
         try {
-            await signUp(formData.email, formData.password, formData.pseudonym);
-            navigate('/onboarding');
+            // Instead of signing up now, pass data to onboarding
+            navigate('/onboarding', { state: { registrationData: formData } });
         } catch (err: any) {
-            setError(err.message || 'Erro ao criar conta. Tente novamente.');
-        } finally {
-            setLoading(false);
+            setError('Erro ao processar dados. Tente novamente.');
         }
     };
 
@@ -89,6 +87,17 @@ export default function Register() {
                     required
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                />
+                <Input
+                    label="Telefone"
+                    type="tel"
+                    placeholder="(00) 00000-0000"
+                    required
+                    value={formData.phone}
+                    onChange={(e) => {
+                        // Simple numeric mask could be added here
+                        setFormData({ ...formData, phone: e.target.value });
+                    }}
                 />
                 <Input
                     label="Senha"

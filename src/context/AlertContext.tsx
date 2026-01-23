@@ -18,6 +18,8 @@ interface AlertContextType {
         street?: string;
         photo_url?: string;
         author_pseudonym: string;
+        police_report?: string;
+        reference_point?: string;
     }) => Promise<void>;
     confirmAlert: (id: string) => Promise<void>;
     resolveAlert: (id: string) => Promise<void>;
@@ -80,6 +82,8 @@ export function AlertProvider({ children }: { children: ReactNode }) {
                     created_at: alert.created_at,
                     author_pseudonym: alert.author_pseudonym,
                     confirmations,
+                    police_report: alert.police_report,
+                    reference_point: alert.reference_point,
                     status: (alert.status || 'active') as any,
                     comments: comments.map((c: any) => ({
                         id: c.id,
@@ -109,6 +113,8 @@ export function AlertProvider({ children }: { children: ReactNode }) {
         street?: string;
         photo_url?: string;
         author_pseudonym: string;
+        police_report?: string;
+        reference_point?: string;
     }) => {
         try {
             await alertService.createAlert(newAlert);

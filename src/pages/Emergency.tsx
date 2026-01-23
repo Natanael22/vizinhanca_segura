@@ -1,6 +1,6 @@
 import { EmergencyButton } from '../components/Emergency/EmergencyButton';
 import { BottomNav } from '../components/Navigation/BottomNav';
-import { AlertTriangle, ShieldAlert, HeartPulse, Flame } from 'lucide-react';
+import { AlertTriangle, ShieldAlert, HeartPulse, Flame, ShieldUser } from 'lucide-react';
 
 export default function Emergency() {
     return (
@@ -26,7 +26,8 @@ export default function Emergency() {
                     number="190"
                     label="Polícia Militar"
                     sublabel="Emergências policiais e risco de vida"
-                    color="border-blue-900"
+                    borderColor="border-blue-900"
+                    bgColor="bg-blue-900"
                     icon={<ShieldAlert size={28} />}
                 />
 
@@ -34,7 +35,8 @@ export default function Emergency() {
                     number="193"
                     label="Bombeiros"
                     sublabel="Incêndios e resgates"
-                    color="border-red-600"
+                    borderColor="border-red-600"
+                    bgColor="bg-red-600"
                     icon={<Flame size={28} />}
                 />
 
@@ -42,7 +44,8 @@ export default function Emergency() {
                     number="192"
                     label="SAMU"
                     sublabel="Ambulância e socorro médico"
-                    color="border-red-500" // red-500 is lighter/different
+                    borderColor="border-red-500"
+                    bgColor="bg-red-500"
                     icon={<HeartPulse size={28} />}
                 />
             </div>

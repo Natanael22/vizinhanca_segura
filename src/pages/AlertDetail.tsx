@@ -3,7 +3,7 @@ import { useAlerts } from '../context/AlertContext';
 import { ALERT_TYPES, type AlertType } from '../types/alert';
 import { Button } from '../components/Button';
 import { MapContainer, TileLayer, Marker } from 'react-leaflet';
-import { ArrowLeft, Clock, MapPin, ThumbsUp, Send } from 'lucide-react';
+import { ArrowLeft, Clock, MapPin, ThumbsUp, Send, PointerIcon, LocateFixed, ShieldUser } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useState } from 'react';
@@ -61,7 +61,18 @@ export default function AlertDetail() {
                 </MapContainer>
             </div>
 
-            <div className="flex-1 -mt-6 rounded-t-3xl bg-white relative z-1 p-6 overflow-y-auto flex flex-col shadow-[0_-4px_10px_-2px_rgba(0,0,0,0.1)]">
+            <div className="flex-1 -mt-6 rounded-t-3xl bg-white relative z-1 p-6 overflow-y-auto flex flex-col shadow-[0_-4px_10px_-2px_rgba(0,0,0,0.1)] pb-24">
+
+                {/* Photo Exhibit if exists */}
+                {alert.photo_url && (
+                    <div className="mb-6 rounded-2xl overflow-hidden shadow-sm border border-primary-100">
+                        <img
+                            src={alert.photo_url}
+                            alt="Foto da ocorrência"
+                            className="w-full h-auto max-h-[400px] object-cover"
+                        />
+                    </div>
+                )}
 
                 {/* Header Info */}
                 <div className="flex items-center gap-3 mb-4">
@@ -80,12 +91,31 @@ export default function AlertDetail() {
                     </div>
                     <div className="flex items-center gap-1.5">
                         <MapPin size={16} />
-                        <span>{alert.neighborhood || alert.city || 'Localização'}</span>
+                        <span>{alert.street || alert.neighborhood || 'Localização'}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                        <LocateFixed size={16} />
+                        <span>{alert.reference_point || 'Ponto de Referência'}</span>
                     </div>
                     <div className="flex items-center gap-1.5 w-full">
                         <span className="font-medium text-primary-900">Por:</span> {alert.author_pseudonym}
                     </div>
                 </div>
+
+                {/* Additional Info:  Police Report */}
+                {(alert.police_report) && (
+                    <div className="grid grid-cols-1 gap-3 mb-8">
+                        {alert.police_report && (
+                            <div className="bg-accent-50 p-4 rounded-xl border border-accent-100 flex gap-3 items-start">
+                                <ShieldUser size={20} className="text-accent-600 shrink-0 mt-0.5" />
+                                <div>
+                                    <span className="text-[10px] uppercase font-bold text-accent-400 block mb-0.5">Boletim de Ocorrência</span>
+                                    <p className="text-primary-800 text-sm font-mono">{alert.police_report}</p>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
 
                 {/* Actions */}
                 <div className="mb-8">

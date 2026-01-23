@@ -6,7 +6,7 @@ type AuthContextType = {
     user: User | null;
     session: Session | null;
     loading: boolean;
-    signUp: (email: string, password: string, pseudonym: string) => Promise<void>;
+    signUp: (email: string, password: string, pseudonym: string, phone: string, neighborhood?: string, city?: string, state?: string) => Promise<void>;
     signIn: (email: string, password: string) => Promise<void>;
     signOut: () => Promise<void>;
 };
@@ -38,14 +38,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return () => subscription.unsubscribe();
     }, []);
 
-    const signUp = async (email: string, password: string, pseudonym: string) => {
-        // Pass pseudonym through user metadata - database trigger will create profile
+    const signUp = async (
+        email: string,
+        password: string,
+        pseudonym: string,
+        phone: string,
+        neighborhood?: string,
+        city?: string,
+        state?: string
+    ) => {
+        // Pass all metadata through user metadata - database trigger will create profile
         const { error } = await supabase.auth.signUp({
             email,
             password,
             options: {
                 data: {
                     pseudonym,
+                    phone,
+                    neighborhood,
+                    city,
+                    state,
                 },
             },
         });

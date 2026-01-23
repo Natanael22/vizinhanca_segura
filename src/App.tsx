@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AlertProvider } from './context/AlertContext';
 import { AuthProvider } from './context/AuthContext';
+import { LocationProvider } from './context/LocationContext';
 import MobileLayout from './layout/MobileLayout';
 
 // Lazy load components
@@ -29,27 +30,29 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <AlertProvider>
-          <Suspense fallback={<PageLoader />}>
-            <Routes>
-              <Route element={<MobileLayout />}>
-                <Route path="/" element={<Welcome />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/onboarding" element={<Onboarding />} />
-                <Route path="/home" element={<Home />} />
-                <Route path="/feed" element={<Feed />} />
-                <Route path="/emergency" element={<Emergency />} />
-                <Route path="/community" element={<Community />} />
-                <Route path="/topic/:id" element={<TopicDetail />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/alert/:id" element={<AlertDetail />} />
-                <Route path="/create-alert" element={<CreateAlert />} />
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Route>
-            </Routes>
-          </Suspense>
-        </AlertProvider>
+        <LocationProvider>
+          <AlertProvider>
+            <Suspense fallback={<PageLoader />}>
+              <Routes>
+                <Route element={<MobileLayout />}>
+                  <Route path="/" element={<Welcome />} />
+                  <Route path="/register" element={<Register />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/onboarding" element={<Onboarding />} />
+                  <Route path="/home" element={<Home />} />
+                  <Route path="/feed" element={<Feed />} />
+                  <Route path="/emergency" element={<Emergency />} />
+                  <Route path="/community" element={<Community />} />
+                  <Route path="/topic/:id" element={<TopicDetail />} />
+                  <Route path="/profile" element={<Profile />} />
+                  <Route path="/alert/:id" element={<AlertDetail />} />
+                  <Route path="/create-alert" element={<CreateAlert />} />
+                  <Route path="*" element={<Navigate to="/" replace />} />
+                </Route>
+              </Routes>
+            </Suspense>
+          </AlertProvider>
+        </LocationProvider>
       </AuthProvider>
     </Router>
   )

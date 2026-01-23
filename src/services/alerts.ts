@@ -32,6 +32,8 @@ export async function createAlert(alert: {
     street?: string;
     photo_url?: string;
     author_pseudonym: string;
+    police_report?: string;
+    reference_point?: string;
 }): Promise<Alert> {
     const { data: { user } } = await supabase.auth.getUser();
 

@@ -23,6 +23,8 @@ export default function CreateAlert() {
     const [error, setError] = useState('');
     const [photo, setPhoto] = useState<File | null>(null);
     const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+    const [policeReport, setPoliceReport] = useState('');
+    const [referencePoint, setReferencePoint] = useState('');
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -105,6 +107,8 @@ export default function CreateAlert() {
                 description,
                 author_pseudonym: profile?.pseudonym || 'Anônimo',
                 photo_url: photoUrl,
+                police_report: (selectedType === 'emergency' || selectedType === 'theft') ? policeReport : undefined,
+                reference_point: (selectedType === 'emergency' || selectedType === 'theft') ? referencePoint : undefined,
                 ...addressData
             });
 
@@ -175,6 +179,32 @@ export default function CreateAlert() {
                             {description.length}/280
                         </div>
                     </div>
+
+                    {/* Conditional Fields: Police Report and Reference Point */}
+                    {(selectedType === 'emergency' || selectedType === 'theft') && (
+                        <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-primary-700">Ponto de Referência</label>
+                                <input
+                                    type="text"
+                                    value={referencePoint}
+                                    onChange={(e) => setReferencePoint(e.target.value)}
+                                    placeholder="Ex: Próximo ao mercado da esquina"
+                                    className="w-full h-12 rounded-lg border border-primary-300 px-3 text-primary-900 focus:ring-2 focus:ring-accent-500 focus:outline-none"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-primary-700">Nº do Boletim de Ocorrência (Opcional)</label>
+                                <input
+                                    type="text"
+                                    value={policeReport}
+                                    onChange={(e) => setPoliceReport(e.target.value)}
+                                    placeholder="Caso já possua o registro"
+                                    className="w-full h-12 rounded-lg border border-primary-300 px-3 text-primary-900 focus:ring-2 focus:ring-accent-500 focus:outline-none"
+                                />
+                            </div>
+                        </div>
+                    )}
 
                     {/* Photo Upload */}
                     <div className="space-y-2">

@@ -1,7 +1,9 @@
 -- Update alerts table with status
 ALTER TABLE public.alerts 
 ADD COLUMN IF NOT EXISTS status text DEFAULT 'active' CHECK (status IN ('active', 'resolved', 'hidden')),
-ADD COLUMN IF NOT EXISTS street text;
+ADD COLUMN IF NOT EXISTS street text,
+ADD COLUMN IF NOT EXISTS police_report text,
+ADD COLUMN IF NOT EXISTS reference_point text;
 
 -- Create community topics table
 CREATE TABLE IF NOT EXISTS public.topics (
@@ -48,3 +50,38 @@ CREATE POLICY "Authenticated users can create replies" ON public.replies FOR INS
 
 -- Policies for Reputation
 CREATE POLICY "Users can only view their own reputation history" ON public.reputation_history FOR SELECT USING (auth.uid() = user_id);
+
+-- Add missing columns to profiles
+ALTER TABLE public.profiles 
+ADD COLUMN IF NOT EXISTS phone text,
+ADD COLUMN IF NOT EXISTS neighborhood text,
+ADD COLUMN IF NOT EXISTS city text,
+ADD COLUMN IF NOT EXISTS state text;
+
+-- Ensure reputation defaults to 0 and fix any existing discrepancy
+ALTER TABLE public.profiles ALTER COLUMN reputation SET DEFAULT 0;
+UPDATE public.profiles SET reputation = 0 WHERE reputation = 850; -- Optional: Reset users accidentally created with 850
+
+-- Function to handle new user registration from auth metadata
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS trigger AS $$
+BEGIN
+    INSERT INTO public.profiles (id, email, pseudonym, phone, neighborhood, city, state)
+    VALUES (
+        new.id,
+        new.email,
+        new.raw_user_meta_data->>'pseudonym',
+        new.raw_user_meta_data->>'phone',
+        new.raw_user_meta_data->>'neighborhood',
+        new.raw_user_meta_data->>'city',
+        new.raw_user_meta_data->>'state'
+    );
+    RETURN new;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Trigger to call the function on signup
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+    AFTER INSERT ON auth.users
+    FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();

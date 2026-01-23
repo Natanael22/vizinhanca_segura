@@ -13,6 +13,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 export type Profile = {
     id: string;
     email: string;
+    phone: string | null;
     pseudonym: string;
     neighborhood: string | null;
     city: string | null;
@@ -35,6 +36,8 @@ export type Alert = {
     street: string | null;
     photo_url: string | null;
     author_pseudonym: string;
+    police_report: string | null;
+    reference_point: string | null;
     status: 'active' | 'resolved' | 'hidden';
     created_at: string;
     updated_at: string;
