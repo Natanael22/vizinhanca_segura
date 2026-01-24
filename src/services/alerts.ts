@@ -96,6 +96,16 @@ export async function getAlertConfirmations(alertId: string): Promise<number> {
     return count || 0;
 }
 
+export async function getAlertReports(alertId: string): Promise<number> {
+    const { count, error } = await supabase
+        .from('alert_reports')
+        .select('*', { count: 'exact', head: true })
+        .eq('alert_id', alertId);
+
+    if (error) throw error;
+    return count || 0;
+}
+
 export async function addComment(alertId: string, content: string, authorPseudonym: string): Promise<void> {
     const { data: { user } } = await supabase.auth.getUser();
 
@@ -123,12 +133,32 @@ export async function resolveAlert(alertId: string): Promise<void> {
 }
 
 export async function reportAlert(alertId: string): Promise<void> {
-    const { error } = await supabase
-        .from('alerts')
-        .update({ status: 'hidden' })
-        .eq('id', alertId);
+    const { data: { user } } = await supabase.auth.getUser();
 
-    if (error) throw error;
+    if (!user) throw new Error('Not authenticated');
+
+    // 1. Insert report
+    const { error: reportError } = await supabase
+        .from('alert_reports')
+        .insert({
+            alert_id: alertId,
+            user_id: user.id,
+        });
+
+    if (reportError) throw reportError;
+
+    // 2. Check total reports
+    const reportCount = await getAlertReports(alertId);
+
+    // 3. Hide if threshold reached
+    if (reportCount >= 10) {
+        const { error: updateError } = await supabase
+            .from('alerts')
+            .update({ status: 'hidden' })
+            .eq('id', alertId);
+
+        if (updateError) throw updateError;
+    }
 }
 
 export async function getComments(alertId: string) {

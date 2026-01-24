@@ -32,7 +32,7 @@ export function AlertCard({ alert }: AlertCardProps) {
                         {typeConfig.label}
                     </span>
                     {isResolved && (
-                        <span className="bg-primary-100 text-primary-600 text-xs px-2 py-0.5 rounded-full font-medium">Resolvido</span>
+                        <span className="bg-green-600 text-white text-xs px-2 py-0.5 rounded-full font-medium">Resolvido</span>
                     )}
                 </div>
                 <span className="text-xs text-primary-400">

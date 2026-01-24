@@ -62,8 +62,9 @@ export function AlertProvider({ children }: { children: ReactNode }) {
             // Map the Supabase data to our frontend Alert type
             // Note: In a real app we might want to fetch confirmation counts and comments together
             const mappedAlerts: Alert[] = await Promise.all(data.map(async (alert: any) => {
-                const [confirmations, comments] = await Promise.all([
+                const [confirmations, reports, comments] = await Promise.all([
                     alertService.getAlertConfirmations(alert.id),
+                    alertService.getAlertReports(alert.id),
                     alertService.getComments(alert.id)
                 ]);
 
@@ -82,6 +83,7 @@ export function AlertProvider({ children }: { children: ReactNode }) {
                     created_at: alert.created_at,
                     author_pseudonym: alert.author_pseudonym,
                     confirmations,
+                    reports,
                     police_report: alert.police_report,
                     reference_point: alert.reference_point,
                     status: (alert.status || 'active') as any,
@@ -118,6 +120,7 @@ export function AlertProvider({ children }: { children: ReactNode }) {
     }) => {
         try {
             await alertService.createAlert(newAlert);
+            await loadAlerts();
         } catch (error) {
             console.error('Error creating alert:', error);
             throw error;
@@ -137,6 +140,25 @@ export function AlertProvider({ children }: { children: ReactNode }) {
         }
     };
 
+    const reportAlert = async (id: string) => {
+        try {
+            await alertService.reportAlert(id);
+            // Optimistic update
+            setAlerts(prev => prev.map(alert =>
+                alert.id === id ? { ...alert, reports: alert.reports + 1 } : alert
+                //const newReports = alert.reports + 1;
+                //const newStatus = newReports >= 10 ? 'hidden' : alert.status;
+                //return { ...alert, reports: newReports, status: newStatus };
+
+                //return alert;
+                //}
+            ));
+        } catch (error) {
+            console.error('Error reporting alert:', error);
+            throw error;
+        }
+    };
+
     const resolveAlert = async (id: string) => {
         try {
             await alertService.resolveAlert(id);
@@ -145,18 +167,6 @@ export function AlertProvider({ children }: { children: ReactNode }) {
             ));
         } catch (error) {
             console.error('Error resolving alert:', error);
-            throw error;
-        }
-    };
-
-    const reportAlert = async (id: string) => {
-        try {
-            await alertService.reportAlert(id);
-            setAlerts(prev => prev.map(alert =>
-                alert.id === id ? { ...alert, status: 'hidden' } : alert
-            ));
-        } catch (error) {
-            console.error('Error reporting alert:', error);
             throw error;
         }
     };

@@ -3,18 +3,20 @@ import { useAlerts } from '../context/AlertContext';
 import { AlertCard } from '../components/Feed/AlertCard';
 import { BottomNav } from '../components/Navigation/BottomNav';
 import { useCurrentNeighborhood } from '../hooks/useCurrentNeighborhood';
-import { MapPin, Navigation, Globe } from 'lucide-react';
+import { MapPin, Navigation, User } from 'lucide-react';
 import { clsx } from 'clsx';
+import { useAuth } from '../context/AuthContext';
 
 export default function Feed() {
+    const { user } = useAuth();
     const { alerts } = useAlerts();
     const { profileNeighborhood, gpsNeighborhood, loading: locationLoading } = useCurrentNeighborhood();
-    const [filter, setFilter] = useState<'all' | 'profile' | 'gps'>('all');
+    const [filter, setFilter] = useState<'meus' | 'neighborhood' | 'gps'>('neighborhood');
 
     // Filter Logic
     const filteredAlerts = alerts.filter(alert => {
-        if (filter === 'all') return true;
-        if (filter === 'profile') return alert.neighborhood === profileNeighborhood;
+        if (filter === 'meus') return alert.user_id === user?.id;
+        if (filter === 'neighborhood') return alert.neighborhood === profileNeighborhood;
         if (filter === 'gps') return alert.neighborhood === gpsNeighborhood;
         return true;
     });
@@ -55,16 +57,16 @@ export default function Feed() {
                 {/* Horizontal Filter Bar */}
                 <div className="flex gap-2 overflow-x-auto px-4 pb-4 no-scrollbar">
                     <FilterButton
-                        active={filter === 'all'}
-                        onClick={() => setFilter('all')}
-                        icon={Globe}
-                        label="Todos"
+                        active={filter === 'meus'}
+                        onClick={() => setFilter('meus')}
+                        icon={User}
+                        label="Meus"
                     />
 
                     {profileNeighborhood && (
                         <FilterButton
-                            active={filter === 'profile'}
-                            onClick={() => setFilter('profile')}
+                            active={filter === 'neighborhood'}
+                            onClick={() => setFilter('neighborhood')}
                             icon={MapPin}
                             label="Meu Bairro"
                             sublabel={profileNeighborhood}
@@ -101,14 +103,16 @@ export default function Feed() {
                         </div>
                         <h3 className="font-bold text-primary-900 mb-1">Nenhum alerta aqui</h3>
                         <p className="text-sm text-primary-500">
-                            Não há ocorrências registradas {filter === 'all' ? 'no momento' : `em ${filter === 'profile' ? profileNeighborhood : gpsNeighborhood}`}.
+                            {filter === 'meus'
+                                ? 'Você ainda não registrou nenhuma ocorrência.'
+                                : `Não há ocorrências registradas em ${filter === 'neighborhood' ? profileNeighborhood : gpsNeighborhood}.`}
                         </p>
-                        {filter !== 'all' && (
+                        {filter !== 'neighborhood' && (
                             <button
-                                onClick={() => setFilter('all')}
+                                onClick={() => setFilter('neighborhood')}
                                 className="mt-4 text-accent-600 font-bold text-sm hover:underline"
                             >
-                                Ver todos os bairros
+                                Ver meu bairro
                             </button>
                         )}
                     </div>

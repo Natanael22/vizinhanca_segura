@@ -113,6 +113,7 @@ export default function CreateAlert() {
             });
 
             console.log('Alert created successfully');
+
             navigate('/home');
         } catch (err: any) {
             console.error('Error creating alert:', err);

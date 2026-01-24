@@ -30,6 +30,7 @@ export interface Alert {
     created_at: string;
     author_pseudonym: string;
     confirmations: number;
+    reports: number;
     police_report?: string;
     reference_point?: string;
     status: 'active' | 'resolved' | 'hidden';

@@ -97,7 +97,12 @@ export default function TopicDetail() {
                 >
                     <ArrowLeft size={24} />
                 </button>
-                <h1 className="text-lg font-bold text-primary-900 truncate flex-1">Discussão</h1>
+                <div className="flex-1 min-w-0">
+                    <h1 className="text-lg font-bold text-primary-900 truncate">Discussão</h1>
+                    {topic.neighborhood && (
+                        <p className="text-[10px] text-accent-600 font-medium uppercase tracking-wider">{topic.neighborhood}</p>
+                    )}
+                </div>
             </header>
 
             <div className="flex-1 overflow-y-auto pb-24">

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { BottomNav } from '../components/Navigation/BottomNav';
-import { MessageCircle, Plus, X } from 'lucide-react';
+import { MessageCircle, Plus, X, Search } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import * as communityService from '../services/community';
@@ -8,26 +8,31 @@ import { supabase, type Topic } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/Button';
 import { Input } from '../components/Input';
+import { useCurrentNeighborhood } from '../hooks/useCurrentNeighborhood';
 
 import { useNavigate } from 'react-router-dom';
 
 export default function Community() {
     const navigate = useNavigate();
     const { user } = useAuth();
+    const { profileNeighborhood, loading: locationLoading } = useCurrentNeighborhood();
     const [topics, setTopics] = useState<Topic[]>([]);
     const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
     const [newTitle, setNewTitle] = useState('');
     const [newContent, setNewContent] = useState('');
     const [submitting, setSubmitting] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
-        loadTopics();
-    }, []);
+        if (!locationLoading) {
+            loadTopics();
+        }
+    }, [profileNeighborhood, locationLoading]);
 
     const loadTopics = async () => {
         try {
-            const data = await communityService.getTopics();
+            const data = await communityService.getTopics(profileNeighborhood || undefined);
             setTopics(data);
         } catch (error) {
             console.error('Error loading topics:', error);
@@ -35,6 +40,10 @@ export default function Community() {
             setLoading(false);
         }
     };
+
+    const filteredTopics = topics.filter(topic =>
+        topic.title.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     const handleCreateTopic = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -51,7 +60,8 @@ export default function Community() {
             await communityService.createTopic({
                 title: newTitle,
                 content: newContent,
-                author_pseudonym: profile?.pseudonym || 'Anônimo'
+                author_pseudonym: profile?.pseudonym || 'Anônimo',
+                neighborhood: profileNeighborhood
             });
 
             setNewTitle('');
@@ -72,7 +82,9 @@ export default function Community() {
                 </div>
                 <div>
                     <h1 className="text-xl font-bold text-primary-900">Comunidade</h1>
-                    <p className="text-xs text-primary-500">Discussões gerais do bairro</p>
+                    <p className="text-xs text-primary-500">
+                        {profileNeighborhood ? `Discussões em ${profileNeighborhood}` : 'Discussões gerais'}
+                    </p>
                 </div>
             </header>
 
@@ -116,12 +128,51 @@ export default function Community() {
                     </form>
                 )}
 
+                {/* Search Bar */}
+                <div className="relative">
+                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-primary-400">
+                        <Search size={18} />
+                    </div>
+                    <input
+                        type="text"
+                        placeholder="Pesquisar discussões..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full pl-10 pr-10 py-3 bg-white border border-primary-200 rounded-xl text-sm text-primary-900 focus:ring-2 focus:ring-accent-500 focus:outline-none transition-all shadow-sm"
+                    />
+                    {searchTerm && (
+                        <button
+                            onClick={() => setSearchTerm('')}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-primary-400 hover:text-primary-600 p-1"
+                        >
+                            <X size={16} />
+                        </button>
+                    )}
+                </div>
+
                 {loading ? (
                     <div className="text-center py-10 text-primary-400">Carregando discussões...</div>
-                ) : topics.length === 0 ? (
-                    <div className="text-center py-10 text-primary-400">Nenhuma discussão por aqui ainda. Seja o primeiro!</div>
+                ) : filteredTopics.length === 0 ? (
+                    <div className="text-center py-10 space-y-2 bg-white rounded-xl border border-dashed border-primary-200">
+                        <p className="text-primary-400 font-medium">
+                            {searchTerm
+                                ? `Nenhuma discussão encontrada para "${searchTerm}"`
+                                : `Nenhuma discussão em ${profileNeighborhood || 'seu bairro'} ainda.`}
+                        </p>
+                        <p className="text-xs text-primary-300">
+                            {searchTerm ? 'Tente outros termos ou limpe a busca.' : 'Seja o primeiro a compartilhar algo com seus vizinhos!'}
+                        </p>
+                        {searchTerm && (
+                            <button
+                                onClick={() => setSearchTerm('')}
+                                className="mt-2 text-accent-600 text-sm font-bold hover:underline"
+                            >
+                                Limpar Busca
+                            </button>
+                        )}
+                    </div>
                 ) : (
-                    topics.map(topic => (
+                    filteredTopics.map(topic => (
                         <div
                             key={topic.id}
                             onClick={() => navigate(`/topic/${topic.id}`)}

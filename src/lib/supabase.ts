@@ -63,6 +63,7 @@ export type Topic = {
     id: string;
     user_id: string;
     author_pseudonym: string;
+    neighborhood: string | null;
     title: string;
     content: string;
     created_at: string;

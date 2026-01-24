@@ -8,12 +8,16 @@ import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useState } from 'react';
 import { Input } from '../components/Input';
+import { useAuth } from '../context/AuthContext';
+import { AlertTriangle, CheckCircle2, Loader2 } from 'lucide-react';
 
 export default function AlertDetail() {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const { alerts, confirmAlert, addComment } = useAlerts();
+    const { user } = useAuth();
+    const { alerts, confirmAlert, resolveAlert, reportAlert, addComment } = useAlerts();
     const [commentText, setCommentText] = useState('');
+    const [isActionLoading, setIsActionLoading] = useState(false);
 
     const alert = alerts.find(a => a.id === id);
 
@@ -22,9 +26,40 @@ export default function AlertDetail() {
     }
 
     const typeConfig = ALERT_TYPES[alert.type as AlertType];
+    const isOwner = user?.id === alert.user_id;
 
-    const handleConfirm = () => {
-        confirmAlert(alert.id);
+    const handleConfirm = async () => {
+        setIsActionLoading(true);
+        try {
+            await confirmAlert(alert.id);
+        } finally {
+            setIsActionLoading(false);
+        }
+    };
+
+    const handleReport = async () => {
+        if (!confirm('Deseja denunciar este alerta como falso?')) return;
+        setIsActionLoading(true);
+        try {
+            await reportAlert(alert.id);
+            //navigate(-1);
+        } catch (err) {
+            console.error('Error reporting alert:', err);
+        } finally {
+            setIsActionLoading(false);
+        }
+    };
+
+    const handleResolve = async () => {
+        setIsActionLoading(true);
+        try {
+            await resolveAlert(alert.id);
+            navigate(-1);
+        } catch (err) {
+            console.error('Error resolving alert:', err);
+        } finally {
+            setIsActionLoading(false);
+        }
     };
 
     const submitComment = async (e: React.FormEvent) => {
@@ -118,14 +153,45 @@ export default function AlertDetail() {
                 )}
 
                 {/* Actions */}
-                <div className="mb-8">
-                    <Button
-                        variant="outline"
-                        className="flex gap-2 items-center w-full"
-                        onClick={handleConfirm}
-                    >
-                        <ThumbsUp size={18} /> Confirmar ({alert.confirmations || 0})
-                    </Button>
+                <div className="mb-8 space-y-3">
+                    {alert.status === 'active' ? (
+                        isOwner ? (
+                            <Button
+                                variant="secondary"
+                                className="flex gap-2 items-center w-full bg-green-500 hover:bg-green-600 text-white border-none"
+                                onClick={handleResolve}
+                                disabled={isActionLoading}
+                            >
+                                {isActionLoading ? <Loader2 className="animate-spin" size={18} /> : <CheckCircle2 size={18} />}
+                                Encerrar Ocorrência
+                            </Button>
+                        ) : (
+                            <>
+                                <Button
+                                    variant="outline"
+                                    className="flex gap-2 items-center w-full"
+                                    onClick={handleConfirm}
+                                    disabled={isActionLoading}
+                                >
+                                    {isActionLoading ? <Loader2 className="animate-spin" size={18} /> : <ThumbsUp size={18} />}
+                                    Confirmar ({alert.confirmations || 0})
+                                </Button>
+                                <Button
+                                    variant="ghost"
+                                    className="flex gap-2 items-center w-full text-red-700 bg-red-200 hover:bg-red-300"
+                                    onClick={handleReport}
+                                    disabled={isActionLoading}
+                                >
+                                    {isActionLoading ? <Loader2 className="animate-spin" size={18} /> : <AlertTriangle size={18} />}
+                                    Denunciar ({alert.reports || 0})
+                                </Button>
+                            </>
+                        )
+                    ) : (
+                        <div className="bg-primary-50 p-4 rounded-xl text-center border border-primary-100 italic text-primary-500">
+                            Esta ocorrência já foi marcada como {alert.status === 'resolved' ? 'resolvida' : 'oculta'}.
+                        </div>
+                    )}
                 </div>
 
                 {/* Comments Section */}
@@ -145,21 +211,22 @@ export default function AlertDetail() {
                             </div>
                         ))}
                     </div>
-
-                    <form onSubmit={submitComment} className="flex gap-2 items-end">
-                        <div className="flex-1">
-                            <Input
-                                label=""
-                                placeholder="Adicione informações..."
-                                value={commentText}
-                                onChange={(e) => setCommentText(e.target.value)}
-                                className="h-10 text-sm"
-                            />
-                        </div>
-                        <Button type="submit" size="sm" className="h-10 w-12 p-0 flex items-center justify-center">
-                            <Send size={18} />
-                        </Button>
-                    </form>
+                    {alert.status !== 'resolved' && (
+                        <form onSubmit={submitComment} className="flex gap-2 items-end">
+                            <div className="flex-1">
+                                <Input
+                                    label=""
+                                    placeholder="Adicione informações..."
+                                    value={commentText}
+                                    onChange={(e) => setCommentText(e.target.value)}
+                                    className="h-10 text-sm"
+                                />
+                            </div>
+                            <Button type="submit" size="sm" className="h-10 w-12 p-0 flex items-center justify-center">
+                                <Send size={18} />
+                            </Button>
+                        </form>
+                    )}
                 </div>
             </div>
         </div>

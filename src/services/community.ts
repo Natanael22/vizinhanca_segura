@@ -1,10 +1,15 @@
 import { supabase, type Topic, type Reply } from '../lib/supabase';
 
-export async function getTopics(): Promise<Topic[]> {
-    const { data, error } = await supabase
+export async function getTopics(neighborhood?: string): Promise<Topic[]> {
+    let query = supabase
         .from('topics')
-        .select('*')
-        .order('created_at', { ascending: false });
+        .select('*');
+
+    if (neighborhood) {
+        query = query.eq('neighborhood', neighborhood);
+    }
+
+    const { data, error } = await query.order('created_at', { ascending: false });
 
     if (error) throw error;
     return data || [];
@@ -21,7 +26,7 @@ export async function getTopicById(id: string): Promise<Topic> {
     return data;
 }
 
-export async function createTopic(topic: { title: string; content: string; author_pseudonym: string }): Promise<Topic> {
+export async function createTopic(topic: { title: string; content: string; author_pseudonym: string; neighborhood: string | null }): Promise<Topic> {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('Not authenticated');
 
