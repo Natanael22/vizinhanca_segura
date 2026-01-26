@@ -80,7 +80,7 @@ export default function Profile() {
                 </div>
             </header>
 
-            <div className="flex-1 overflow-y-auto px-4 pb-24 space-y-6 pt-6">
+            <div className="flex-1 overflow-y-auto px-4 pb-32 space-y-6 pt-6">
                 {/* Stats Grid */}
                 <div className="grid grid-cols-2 gap-3">
                     <div className="bg-white p-4 rounded-2xl shadow-sm border border-primary-100">

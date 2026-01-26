@@ -34,7 +34,7 @@ function RecenterButton({ center }: { center: [number, number] }) {
     return (
         <button
             onClick={() => map.setView(center, 15)}
-            className="absolute left-4 bottom-28 z-[400] bg-white p-3 rounded-full shadow-lg border border-primary-100 text-primary-600 hover:bg-primary-50 transition-colors flex items-center justify-center pointer-events-auto"
+            className="absolute left-4 bottom-32 z-[400] bg-white p-3 rounded-full shadow-lg border border-primary-100 text-primary-600 hover:bg-primary-50 transition-colors flex items-center justify-center pointer-events-auto"
             title="Minha Localização"
         >
             <Locate size={24} />

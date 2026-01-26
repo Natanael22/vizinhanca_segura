@@ -4,7 +4,10 @@ import { clsx } from 'clsx';
 
 export function BottomNav() {
     return (
-        <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-primary-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-[500] flex justify-around p-2 pb-4">
+        <nav
+            className="fixed bottom-0 left-0 right-0 bg-white border-t border-primary-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-[500] flex justify-around p-2"
+            style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom, 0px))' }}
+        >
             <NavLink
                 to="/home"
                 className={({ isActive }) => clsx(

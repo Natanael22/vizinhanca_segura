@@ -93,7 +93,7 @@ export default function Feed() {
                 </div>
             </header>
 
-            <div className="flex-1 overflow-y-auto p-4 space-y-3 pb-24">
+            <div className="flex-1 overflow-y-auto p-4 space-y-3 pb-32">
                 {sortedAlerts.map(alert => (
                     <AlertCard key={alert.id} alert={alert} />
                 ))}

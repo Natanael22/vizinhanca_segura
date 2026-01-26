@@ -88,7 +88,7 @@ export default function Community() {
                 </div>
             </header>
 
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-24">
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-32">
                 {/* New Post Placeholder/Form */}
                 {!showForm ? (
                     <div

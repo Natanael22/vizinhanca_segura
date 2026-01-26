@@ -105,7 +105,7 @@ export default function TopicDetail() {
                 </div>
             </header>
 
-            <div className="flex-1 overflow-y-auto pb-24">
+            <div className="flex-1 overflow-y-auto pb-32">
                 {/* Topic Content */}
                 <div className="bg-white p-6 border-b border-primary-200 shadow-sm">
                     <h2 className="text-xl font-bold text-primary-900 mb-4">{topic.title}</h2>
