@@ -15,10 +15,11 @@ export default function Feed() {
 
     // Filter Logic
     const filteredAlerts = alerts.filter(alert => {
-        if (filter === 'meus') return alert.user_id === user?.id;
-        if (filter === 'neighborhood') return alert.neighborhood === profileNeighborhood;
-        if (filter === 'gps') return alert.neighborhood === gpsNeighborhood;
-        return true;
+        const isStatusActive = alert.status === 'active';
+        if (filter === 'meus') return alert.user_id === user?.id; // Allow seeing my own resolved alerts
+        if (filter === 'neighborhood') return alert.neighborhood === profileNeighborhood && isStatusActive;
+        if (filter === 'gps') return alert.neighborhood === gpsNeighborhood && isStatusActive;
+        return isStatusActive;
     });
 
     // Sort by date desc

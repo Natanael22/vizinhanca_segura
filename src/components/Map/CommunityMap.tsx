@@ -61,7 +61,7 @@ export default function CommunityMap() {
                 />
 
                 {/* Alerts Markers */}
-                {alerts.map(alert => (
+                {alerts.filter(a => a.status === 'active').map(alert => (
                     <AlertMarker key={alert.id} alert={alert} />
                 ))}
 

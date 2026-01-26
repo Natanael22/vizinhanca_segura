@@ -29,7 +29,7 @@ export default function CreateAlert() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        console.log('Submit clicked', { selectedType, userLocation, user });
+        //console.log('Submit clicked', { selectedType, userLocation, user });
 
         if (!selectedType) {
             setError('Por favor, selecione um tipo de alerta');
@@ -50,7 +50,7 @@ export default function CreateAlert() {
         setError('');
 
         try {
-            console.log('Fetching user profile...');
+            //console.log('Fetching user profile...');
             // Get user's pseudonym
             const { data: profile, error: profileError } = await supabase
                 .from('profiles')
@@ -63,11 +63,11 @@ export default function CreateAlert() {
                 throw new Error('Erro ao buscar perfil do usuário');
             }
 
-            console.log('Profile:', profile);
+            //console.log('Profile:', profile);
 
             let photoUrl = '';
             if (photo) {
-                console.log('Uploading photo...');
+                //console.log('Uploading photo...');
                 setUploading(true);
                 try {
                     photoUrl = await alertService.uploadAlertPhoto(photo);
@@ -83,7 +83,7 @@ export default function CreateAlert() {
                 setUploading(false);
             }
 
-            console.log('Resolving address...');
+            //console.log('Resolving address...');
 
             let addressData = { neighborhood: '', city: '', state: '', street: '' };
             try {
@@ -98,7 +98,7 @@ export default function CreateAlert() {
                 console.warn('Could not resolve address, continuing with coordinates only', addrErr);
             }
 
-            console.log('Creating alert with address:', addressData);
+            //console.log('Creating alert with address:', addressData);
 
             await addAlert({
                 type: selectedType,
@@ -112,7 +112,7 @@ export default function CreateAlert() {
                 ...addressData
             });
 
-            console.log('Alert created successfully');
+            //console.log('Alert created successfully');
 
             navigate('/home');
         } catch (err: any) {

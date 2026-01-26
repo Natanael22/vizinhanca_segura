@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { Button } from '../components/Button';
 import { Input } from '../components/Input';
-import { MapPin, CheckCircle, Shield, Search, Loader2, Navigation } from 'lucide-react';
+import { MapPin, CheckCircle, Shield, Search, Loader2, Navigation, MessageSquare } from 'lucide-react';
 import { fetchAddressByCEP } from '../services/cep';
 import { fetchAddressByCoords } from '../services/geocoding';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { sendOTP } from '../services/whatsapp';
 
 type LocationState = {
     neighborhood: string;
@@ -30,6 +31,12 @@ export default function Onboarding() {
     const [location, setLocation] = useState<LocationState | null>(null);
     const [error, setError] = useState('');
     const [acceptedTerms, setAcceptedTerms] = useState(false);
+
+    // WhatsApp OTP State
+    const [verificationCode, setVerificationCode] = useState('');
+    const [userCode, setUserCode] = useState('');
+    const [isSendingCode, setIsSendingCode] = useState(false);
+    const [isVerifyingCode, setIsVerifyingCode] = useState(false);
 
     const handleLocateMe = () => {
         setIsLocating(true);
@@ -63,6 +70,39 @@ export default function Onboarding() {
                 setIsLocating(false);
             }
         );
+    };
+
+    const handleSendCode = async () => {
+        if (!registrationData?.phone) return;
+
+        setIsSendingCode(true);
+        setError('');
+
+        // Generate a 6-digit code
+        const code = Math.floor(100000 + Math.random() * 900000).toString();
+        setVerificationCode(code);
+
+        try {
+            await sendOTP(registrationData.phone, code);
+            // In dev mode with hello_world, we might not actually see the code in WhatsApp
+            // but for this demo/test we'll log it if needed or just proceed
+            //console.log('OTP Code generated:', code);
+        } catch (err: any) {
+            setError(err.message || 'Erro ao enviar código. Verifique se o número está correto.');
+        } finally {
+            setIsSendingCode(false);
+        }
+    };
+
+    const handleVerifyCode = () => {
+        setIsVerifyingCode(true);
+        if (userCode === verificationCode) { // Allow 123456 as bypass for now
+            setStep(3);
+            setError('');
+        } else {
+            setError('Código incorreto. Tente novamente.');
+        }
+        setIsVerifyingCode(false);
     };
 
     const handleCepSearch = async () => {
@@ -148,7 +188,7 @@ export default function Onboarding() {
 
                         <div className="relative flex items-center py-2">
                             <div className="flex-grow border-t border-primary-200"></div>
-                            <span className="flex-shrink-0 mx-4 text-primary-400 text-sm">ou informe o CEP</span>
+                            <span className="flex-shrink-0 mx-4 text-primary-400 text-sm">Caso esteja incorreto, informe o CEP</span>
                             <div className="flex-grow border-t border-primary-200"></div>
                         </div>
 
@@ -203,7 +243,10 @@ export default function Onboarding() {
                         <Button
                             className="w-full text-lg h-14"
                             disabled={!location}
-                            onClick={() => setStep(2)}
+                            onClick={() => {
+                                handleSendCode();
+                                setStep(2);
+                            }}
                         >
                             Continuar
                         </Button>
@@ -212,6 +255,67 @@ export default function Onboarding() {
             )}
 
             {step === 2 && (
+                <div className="animate-in slide-in-from-right duration-500 flex flex-col h-full">
+                    <header className="mb-6">
+                        <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mb-4 text-green-600 shadow-sm">
+                            <MessageSquare size={28} />
+                        </div>
+                        <h1 className="text-2xl font-bold text-primary-900">Verifique seu WhatsApp</h1>
+                        <p className="text-primary-500 mt-2">
+                            Enviamos um código para o número <strong>{registrationData?.phone}</strong>
+                        </p>
+                    </header>
+
+                    <div className="flex-1 space-y-6">
+                        <div className="space-y-4">
+                            <Input
+                                label="Código de 6 dígitos"
+                                placeholder="000000"
+                                value={userCode}
+                                onChange={(e) => {
+                                    const val = e.target.value.replace(/\D/g, '').slice(0, 6);
+                                    setUserCode(val);
+                                }}
+                                type="tel"
+                                className="text-center text-2xl tracking-[0.5em] font-bold"
+                            />
+
+                            {error && (
+                                <p className="text-red-500 text-sm bg-red-50 p-3 rounded-lg border border-red-100">{error}</p>
+                            )}
+                        </div>
+
+                        <div className="text-center">
+                            <button
+                                onClick={handleSendCode}
+                                disabled={isSendingCode}
+                                className="text-accent-600 font-medium hover:underline text-sm disabled:opacity-50"
+                            >
+                                {isSendingCode ? 'Reenviando...' : 'Não recebeu o código? Reenviar'}
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="pt-6 space-y-3">
+                        <Button
+                            className="w-full text-lg h-14"
+                            disabled={userCode.length < 6 || isVerifyingCode}
+                            onClick={handleVerifyCode}
+                        >
+                            {isVerifyingCode ? <Loader2 className="animate-spin" /> : 'Verificar Código'}
+                        </Button>
+                        <Button
+                            variant="ghost"
+                            className="w-full"
+                            onClick={() => setStep(1)}
+                        >
+                            Voltar
+                        </Button>
+                    </div>
+                </div>
+            )}
+
+            {step === 3 && (
                 <div className="animate-in slide-in-from-right duration-500 flex flex-col h-full">
                     <header className="mb-6">
                         <div className="w-14 h-14 bg-primary-100 rounded-full flex items-center justify-center mb-4 text-primary-600 shadow-sm">
@@ -260,7 +364,7 @@ export default function Onboarding() {
                         <Button
                             variant="ghost"
                             className="w-full"
-                            onClick={() => setStep(1)}
+                            onClick={() => setStep(2)}
                         >
                             Voltar
                         </Button>
