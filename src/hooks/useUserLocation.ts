@@ -1,25 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useLocation } from '../context/LocationContext';
 
 export function useUserLocation() {
-    const [position, setPosition] = useState<[number, number] | null>(null);
+    const { gpsCoords } = useLocation();
 
-    useEffect(() => {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    setPosition([pos.coords.latitude, pos.coords.longitude]);
-                },
-                (err) => {
-                    console.error("Error getting location", err);
-                    // Default to Sao Paulo downtown if error
-                    setPosition([-23.550520, -46.633308]);
-                }
-            );
-        } else {
-            // Default fallback
-            setPosition([-23.550520, -46.633308]);
-        }
-    }, []);
-
-    return position;
+    // If no coordinates yet, we can return the default SP coordinates
+    // or null. To keep consistency with previous behavior, let's return default if null.
+    return gpsCoords || ([-23.550520, -46.633308] as [number, number]);
 }

@@ -7,6 +7,7 @@ import { fetchAddressByCoords } from '../services/geocoding';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { sendOTP } from '../services/whatsapp';
+import { logError } from '../services/logger';
 
 type LocationState = {
     neighborhood: string;
@@ -89,6 +90,11 @@ export default function Onboarding() {
             //console.log('OTP Code generated:', code);
         } catch (err: any) {
             setError(err.message || 'Erro ao enviar código. Verifique se o número está correto.');
+            logError({
+                message: err.message,
+                context: 'Onboarding.sendOTP',
+                metadata: { phone: registrationData.phone }
+            });
         } finally {
             setIsSendingCode(false);
         }
@@ -116,9 +122,14 @@ export default function Onboarding() {
                 city: address.city,
                 state: address.state
             });
-        } catch (err) {
+        } catch (err: any) {
             setError('CEP não encontrado.');
             setLocation(null);
+            logError({
+                message: err.message,
+                context: 'Onboarding.handleCepSearch',
+                metadata: { cep }
+            });
         } finally {
             setLoading(false);
         }
@@ -154,6 +165,11 @@ export default function Onboarding() {
         } catch (err: any) {
             console.error('Registration error:', err);
             setError(err.message || 'Erro ao criar conta. Verifique os dados e tente novamente.');
+            logError({
+                message: err.message,
+                stack: err.stack,
+                context: 'Onboarding.handleFinish'
+            });
         } finally {
             setIsFinishing(false);
         }

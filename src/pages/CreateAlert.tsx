@@ -1,21 +1,22 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, AlertTriangle, Camera, X } from 'lucide-react';
 import { Button } from '../components/Button';
 import { useAlerts } from '../context/AlertContext';
 import { useAuth } from '../context/AuthContext';
 import * as alertService from '../services/alerts';
-import { useUserLocation } from '../hooks/useUserLocation';
+import { useLocation } from '../context/LocationContext';
 import { ALERT_TYPES, type AlertType } from '../types/alert';
 import { clsx } from 'clsx';
 import { supabase } from '../lib/supabase';
-import { fetchAddressByCoords } from '../services/geocoding';
+import { logError } from '../services/logger';
+
 
 export default function CreateAlert() {
     const navigate = useNavigate();
     const { addAlert } = useAlerts();
     const { user } = useAuth();
-    const userLocation = useUserLocation();
+    const { gpsCoords, gpsLocation } = useLocation();
     const [description, setDescription] = useState('');
     const [selectedType, setSelectedType] = useState<AlertType | null>(null);
     const [loading, setLoading] = useState(false);
@@ -25,6 +26,17 @@ export default function CreateAlert() {
     const [photoPreview, setPhotoPreview] = useState<string | null>(null);
     const [policeReport, setPoliceReport] = useState('');
     const [referencePoint, setReferencePoint] = useState('');
+
+    // Location verification states
+    const [manualNeighborhood, setManualNeighborhood] = useState('');
+    const [manualStreet, setManualStreet] = useState('');
+
+    useEffect(() => {
+        if (gpsCoords && gpsLocation && !manualNeighborhood) {
+            setManualNeighborhood(gpsLocation.neighborhood);
+            setManualStreet(''); // We only have neighborhood/city in context currently
+        }
+    }, [gpsCoords, gpsLocation]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -36,7 +48,7 @@ export default function CreateAlert() {
             return;
         }
 
-        if (!userLocation) {
+        if (!gpsCoords) {
             setError('Localização não disponível. Permita acesso à localização.');
             return;
         }
@@ -83,27 +95,20 @@ export default function CreateAlert() {
                 setUploading(false);
             }
 
-            //console.log('Resolving address...');
-
-            let addressData = { neighborhood: '', city: '', state: '', street: '' };
-            try {
-                const resolved = await fetchAddressByCoords(userLocation[0], userLocation[1]);
-                addressData = {
-                    neighborhood: resolved.neighborhood,
-                    city: resolved.city,
-                    state: resolved.state,
-                    street: resolved.street
-                };
-            } catch (addrErr) {
-                console.warn('Could not resolve address, continuing with coordinates only', addrErr);
-            }
+            // We use the manual values edited by the user
+            const addressData = {
+                neighborhood: manualNeighborhood || '',
+                city: '', // We could also fetch/store city if needed, but neighborhood is the priority
+                state: '',
+                street: manualStreet || ''
+            };
 
             //console.log('Creating alert with address:', addressData);
 
             await addAlert({
                 type: selectedType,
-                latitude: userLocation[0],
-                longitude: userLocation[1],
+                latitude: gpsCoords[0],
+                longitude: gpsCoords[1],
                 description,
                 author_pseudonym: profile?.pseudonym || 'Anônimo',
                 photo_url: photoUrl,
@@ -118,6 +123,17 @@ export default function CreateAlert() {
         } catch (err: any) {
             console.error('Error creating alert:', err);
             setError(err.message || 'Erro ao criar alerta. Tente novamente.');
+
+            // Log error to Supabase
+            await logError({
+                message: err.message,
+                stack: err.stack,
+                context: 'CreateAlert',
+                metadata: {
+                    alertType: selectedType,
+                    hasPhoto: !!photo
+                }
+            });
         } finally {
             setLoading(false);
         }
@@ -207,6 +223,31 @@ export default function CreateAlert() {
                         </div>
                     )}
 
+                    {/* Location Verification */}
+                    <div className="space-y-4 p-4 bg-primary-50 rounded-xl border border-primary-100">
+                        <div className="flex items-center justify-between mb-2">
+                            <label className="text-sm font-bold text-primary-900">Confirmar Localização</label>
+                        </div>
+                        <div className="space-y-3">
+                            <div className="space-y-1">
+                                <span className="text-[10px] uppercase font-bold text-primary-400 ml-1">Bairro</span>
+                                <input
+                                    type="text"
+                                    value={manualNeighborhood}
+                                    onChange={(e) => setManualNeighborhood(e.target.value)}
+                                    placeholder="Nome do bairro"
+                                    className="w-full h-10 rounded-lg border border-primary-200 px-3 text-sm text-primary-900 focus:ring-2 focus:ring-accent-500 focus:outline-none bg-white"
+                                />
+                            </div>
+                        </div>
+                        <p className="text-[10px] text-primary-400 mt-2 italic">
+                            * O GPS identificou este local.
+                        </p>
+                        <p className="text-[10px] text-primary-400 mt-2 italic">
+                            * Como nosso GPS tem algumas limitações, você pode ajustar o nome se estiver incorreto.
+                        </p>
+                    </div>
+
                     {/* Photo Upload */}
                     <div className="space-y-2">
                         <label className="text-sm font-medium text-primary-700">Adicionar Foto (Opcional)</label>
@@ -254,7 +295,7 @@ export default function CreateAlert() {
                 </div>
 
                 <div className="pt-4 mt-4 border-t border-primary-100 bg-white">
-                    <Button type="submit" className="w-full" disabled={!selectedType || !userLocation || loading || uploading}>
+                    <Button type="submit" className="w-full" disabled={!selectedType || !gpsCoords || loading || uploading}>
                         {loading ? 'Publicando...' : uploading ? 'Enviando foto...' : 'Publicar Alerta'}
                     </Button>
                 </div>
