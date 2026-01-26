@@ -11,7 +11,7 @@ export default defineConfig({
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
       manifest: {
         name: 'Vizinhança Segura',
-        short_name: 'VizinhoSeguro',
+        short_name: 'Vizinhanca Segura',
         description: 'Plataforma colaborativa de segurança comunitária',
         theme_color: '#0f172a',
         background_color: '#ffffff',
