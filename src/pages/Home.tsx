@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import CommunityMap from '../components/Map/CommunityMap';
 import { CreateAlertFAB } from '../components/CreateAlertFAB';
 import { BottomNav } from '../components/Navigation/BottomNav';
@@ -6,6 +7,21 @@ import { useLocation } from '../context/LocationContext';
 
 export default function Home() {
     const { profileLocation, gpsLocation, gpsLoading } = useLocation();
+
+    // Travar a rolagem global apenas nesta tela (Mapa)
+    useEffect(() => {
+        document.body.style.overflow = 'hidden';
+        document.body.style.position = 'fixed';
+        document.body.style.width = '100%';
+        document.body.style.height = '100%';
+
+        return () => {
+            document.body.style.overflow = '';
+            document.body.style.position = '';
+            document.body.style.width = '';
+            document.body.style.height = '';
+        };
+    }, []);
 
     const isUsingGps = !!gpsLocation;
     const locationDisplay = gpsLocation

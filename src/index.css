@@ -7,15 +7,13 @@
   html,
   body,
   #root {
-    @apply h-full overflow-hidden;
-    overscroll-behavior: none;
+    @apply h-full;
     -webkit-overflow-scrolling: touch;
   }
 
   body {
     @apply bg-primary-50 text-primary-900 font-sans antialiased;
-    position: fixed;
-    width: 100%;
-    height: 100%;
+    overscroll-behavior-y: none;
+    /* Previne o "pull-to-refresh" mas permite rolagem */
   }
 }
