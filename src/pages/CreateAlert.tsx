@@ -45,16 +45,31 @@ export default function CreateAlert() {
 
         if (!selectedType) {
             setError('Por favor, selecione um tipo de alerta');
+            logError({
+                message: 'Validation: No alert type selected',
+                context: 'CreateAlert.handleSubmit.validation',
+                metadata: { step: 'type_selection' }
+            });
             return;
         }
 
         if (!gpsCoords) {
             setError('Localização não disponível. Permita acesso à localização.');
+            logError({
+                message: 'Validation: GPS coordinates missing',
+                context: 'CreateAlert.handleSubmit.validation',
+                metadata: { step: 'gps_coords' }
+            });
             return;
         }
 
         if (!user) {
             setError('Você precisa estar autenticado para criar alertas');
+            logError({
+                message: 'Validation: User not authenticated',
+                context: 'CreateAlert.handleSubmit.validation',
+                metadata: { step: 'auth_check' }
+            });
             return;
         }
 

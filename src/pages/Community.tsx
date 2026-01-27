@@ -11,6 +11,7 @@ import { Input } from '../components/Input';
 import { useCurrentNeighborhood } from '../hooks/useCurrentNeighborhood';
 
 import { useNavigate } from 'react-router-dom';
+import { logError } from '../services/logger';
 
 export default function Community() {
     const navigate = useNavigate();
@@ -34,8 +35,13 @@ export default function Community() {
         try {
             const data = await communityService.getTopics(profileNeighborhood || undefined);
             setTopics(data);
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error loading topics:', error);
+            await logError({
+                message: error.message,
+                context: 'Community.loadTopics',
+                metadata: { neighborhood: profileNeighborhood }
+            });
         } finally {
             setLoading(false);
         }
@@ -68,8 +74,14 @@ export default function Community() {
             setNewContent('');
             setShowForm(false);
             loadTopics();
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error creating topic:', error);
+            await logError({
+                message: error.message,
+                stack: error.stack,
+                context: 'Community.handleCreateTopic',
+                metadata: { title: newTitle }
+            });
         } finally {
             setSubmitting(false);
         }

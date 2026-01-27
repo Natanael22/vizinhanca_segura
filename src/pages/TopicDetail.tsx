@@ -8,6 +8,7 @@ import { supabase, type Topic, type Reply } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/Button';
 import { Input } from '../components/Input';
+import { logError } from '../services/logger';
 
 export default function TopicDetail() {
     const { id } = useParams<{ id: string }>();
@@ -35,8 +36,14 @@ export default function TopicDetail() {
             ]);
             setTopic(topicData);
             setReplies(repliesData);
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error loading topic/replies:', error);
+            await logError({
+                message: error.message,
+                stack: error.stack,
+                context: 'TopicDetail.loadTopicAndReplies',
+                metadata: { topicId }
+            });
         } finally {
             setLoading(false);
         }
@@ -59,8 +66,14 @@ export default function TopicDetail() {
             // Reload replies
             const updatedReplies = await communityService.getReplies(id);
             setReplies(updatedReplies);
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error adding reply:', error);
+            await logError({
+                message: error.message,
+                stack: error.stack,
+                context: 'TopicDetail.handleAddReply',
+                metadata: { topicId: id }
+            });
         } finally {
             setSubmitting(false);
         }
