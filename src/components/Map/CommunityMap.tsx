@@ -7,6 +7,7 @@ import { AlertMarker } from './AlertMarker';
 import { useEffect } from 'react';
 import { Locate } from 'lucide-react';
 import { calculateDistance } from '../../utils/geo';
+import MarkerClusterGroup from 'react-leaflet-cluster';
 
 // Create a custom icon for the user
 const userIcon = L.divIcon({
@@ -43,6 +44,16 @@ function RecenterButton({ center }: { center: [number, number] }) {
     );
 }
 
+// Custom function to create cluster icons
+const createClusterCustomIcon = (cluster: any) => {
+    return L.divIcon({
+        html: `<div class="w-9 h-9 rounded-full bg-primary-600 text-white flex items-center justify-center font-bold text-sm shadow-md border-2 border-white transform hover:scale-110 transition-transform">${cluster.getChildCount()}</div>`,
+        className: 'bg-transparent',
+        iconSize: [36, 36],
+        iconAnchor: [18, 18], // Center
+    });
+};
+
 export default function CommunityMap() {
     const { alerts } = useAlerts();
     const userLocation = useUserLocation();
@@ -62,21 +73,29 @@ export default function CommunityMap() {
                 />
 
                 {/* Alerts Markers */}
-                {alerts
-                    .filter(a => a.status === 'active')
-                    .filter(a => {
-                        if (!userLocation) return true; // Se não tem localização, mostra tudo (ou nada? assumindo tudo por enquanto)
-                        const dist = calculateDistance(
-                            userLocation[0],
-                            userLocation[1],
-                            a.latitude,
-                            a.longitude
-                        );
-                        return dist <= 1000; // 1km raio
-                    })
-                    .map(alert => (
-                        <AlertMarker key={alert.id} alert={alert} />
-                    ))}
+                <MarkerClusterGroup
+                    chunkedLoading
+                    maxClusterRadius={60}
+                    spiderfyOnMaxZoom={true}
+                    iconCreateFunction={createClusterCustomIcon}
+                >
+                    {alerts
+                        .filter(a => a.status === 'active')
+                        .filter(a => {
+                            if (!userLocation) return true; // Se não tem localização, mostra tudo (ou nada? assumindo tudo por enquanto)
+                            const dist = calculateDistance(
+                                userLocation[0],
+                                userLocation[1],
+                                a.latitude,
+                                a.longitude
+                            );
+                            //return dist <= 1000; // 1km raio
+                            return true;
+                        })
+                        .map(alert => (
+                            <AlertMarker key={alert.id} alert={alert} />
+                        ))}
+                </MarkerClusterGroup>
 
                 {/* User Location Marker */}
                 {userLocation && (
