@@ -10,6 +10,7 @@ import { useState } from 'react';
 import { Input } from '../components/Input';
 import { useAuth } from '../context/AuthContext';
 import { AlertTriangle, CheckCircle2, Loader2 } from 'lucide-react';
+import { ConfirmModal } from '../components/ConfirmModal';
 
 export default function AlertDetail() {
     const { id } = useParams<{ id: string }>();
@@ -18,6 +19,7 @@ export default function AlertDetail() {
     const { alerts, confirmAlert, resolveAlert, reportAlert, addComment } = useAlerts();
     const [commentText, setCommentText] = useState('');
     const [isActionLoading, setIsActionLoading] = useState(false);
+    const [showReportConfirm, setShowReportConfirm] = useState(false);
 
     const alert = alerts.find(a => a.id === id);
 
@@ -38,10 +40,14 @@ export default function AlertDetail() {
     };
 
     const handleReport = async () => {
-        if (!confirm('Deseja denunciar este alerta como falso?')) return;
+        setShowReportConfirm(true);
+    };
+
+    const confirmReport = async () => {
         setIsActionLoading(true);
         try {
             await reportAlert(alert.id);
+            setShowReportConfirm(false);
             //navigate(-1);
         } catch (err) {
             console.error('Error reporting alert:', err);
@@ -229,6 +235,16 @@ export default function AlertDetail() {
                     )}
                 </div>
             </div>
-        </div>
+
+            <ConfirmModal
+                isOpen={showReportConfirm}
+                title="Denunciar Alerta"
+                description="Tem certeza que deseja denunciar este alerta como falso? Essa ação ajuda a manter a comunidade segura."
+                confirmText="Sim, Denunciar"
+                confirmVariant="danger"
+                onConfirm={confirmReport}
+                onCancel={() => setShowReportConfirm(false)}
+            />
+        </div >
     );
 }

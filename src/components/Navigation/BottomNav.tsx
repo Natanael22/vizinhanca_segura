@@ -20,6 +20,17 @@ export function BottomNav() {
             </NavLink>
 
             <NavLink
+                to="/feed"
+                className={({ isActive }) => clsx(
+                    "flex flex-col items-center justify-center p-2 rounded-lg w-20 transition-colors",
+                    isActive ? "text-accent-600 bg-accent-50" : "text-primary-400 hover:text-primary-600"
+                )}
+            >
+                <List size={24} />
+                <span className="text-xs font-medium mt-1">Feed</span>
+            </NavLink>
+
+            <NavLink
                 to="/emergency"
                 className={({ isActive }) => clsx(
                     "flex flex-col items-center justify-center p-2 rounded-lg w-20 transition-colors",
@@ -30,17 +41,6 @@ export function BottomNav() {
                     <div className="w-5 h-5 bg-red-600 text-white rounded-full flex items-center justify-center font-bold text-[10px] shadow-sm">SOS</div>
                 </div>
                 <span className="text-[10px] font-bold mt-0.5 text-red-600">SOS</span>
-            </NavLink>
-
-            <NavLink
-                to="/feed"
-                className={({ isActive }) => clsx(
-                    "flex flex-col items-center justify-center p-2 rounded-lg w-20 transition-colors",
-                    isActive ? "text-accent-600 bg-accent-50" : "text-primary-400 hover:text-primary-600"
-                )}
-            >
-                <List size={24} />
-                <span className="text-xs font-medium mt-1">Feed</span>
             </NavLink>
 
             <NavLink
