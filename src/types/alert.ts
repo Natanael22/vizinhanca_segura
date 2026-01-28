@@ -33,6 +33,6 @@ export interface Alert {
     reports: number;
     police_report?: string;
     reference_point?: string;
-    status: 'active' | 'resolved' | 'hidden';
+    status: 'active' | 'resolved' | 'reported';
     comments: Comment[];
 }

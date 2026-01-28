@@ -38,7 +38,7 @@ export type Alert = {
     author_pseudonym: string;
     police_report: string | null;
     reference_point: string | null;
-    status: 'active' | 'resolved' | 'hidden';
+    status: 'active' | 'resolved' | 'reported';
     created_at: string;
     updated_at: string;
 };

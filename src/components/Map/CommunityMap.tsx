@@ -6,6 +6,7 @@ import { useUserLocation } from '../../hooks/useUserLocation';
 import { AlertMarker } from './AlertMarker';
 import { useEffect } from 'react';
 import { Locate } from 'lucide-react';
+import { calculateDistance } from '../../utils/geo';
 
 // Create a custom icon for the user
 const userIcon = L.divIcon({
@@ -61,9 +62,21 @@ export default function CommunityMap() {
                 />
 
                 {/* Alerts Markers */}
-                {alerts.filter(a => a.status === 'active').map(alert => (
-                    <AlertMarker key={alert.id} alert={alert} />
-                ))}
+                {alerts
+                    .filter(a => a.status === 'active')
+                    .filter(a => {
+                        if (!userLocation) return true; // Se não tem localização, mostra tudo (ou nada? assumindo tudo por enquanto)
+                        const dist = calculateDistance(
+                            userLocation[0],
+                            userLocation[1],
+                            a.latitude,
+                            a.longitude
+                        );
+                        return dist <= 1000; // 1km raio
+                    })
+                    .map(alert => (
+                        <AlertMarker key={alert.id} alert={alert} />
+                    ))}
 
                 {/* User Location Marker */}
                 {userLocation && (

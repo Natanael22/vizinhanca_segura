@@ -88,7 +88,7 @@ export default function AlertDetail() {
             </header>
 
             {/* Mini Map */}
-            <div className="h-48 w-full bg-primary-100 relative z-0">
+            <div className="h-48 w-full bg-primary-100 relative z-0 overflow-hidden">
                 <MapContainer
                     center={[alert.latitude, alert.longitude]}
                     zoom={16}
@@ -195,7 +195,7 @@ export default function AlertDetail() {
                         )
                     ) : (
                         <div className="bg-primary-50 p-4 rounded-xl text-center border border-primary-100 italic text-primary-500">
-                            Esta ocorrência já foi marcada como {alert.status === 'resolved' ? 'resolvida' : 'oculta'}.
+                            Esta ocorrência já foi marcada como {alert.status === 'resolved' ? 'resolvida' : 'denunciada'}.
                         </div>
                     )}
                 </div>

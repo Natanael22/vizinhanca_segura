@@ -154,7 +154,7 @@ export async function reportAlert(alertId: string): Promise<void> {
     if (reportCount >= 10) {
         const { error: updateError } = await supabase
             .from('alerts')
-            .update({ status: 'hidden' })
+            .update({ status: 'reported' })
             .eq('id', alertId);
 
         if (updateError) throw updateError;

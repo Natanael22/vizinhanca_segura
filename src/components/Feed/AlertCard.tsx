@@ -14,6 +14,7 @@ export function AlertCard({ alert }: AlertCardProps) {
     const userLocation = useUserLocation();
     const typeConfig = ALERT_TYPES[alert.type as keyof typeof ALERT_TYPES];
     const isResolved = alert.status === 'resolved';
+    const isReported = alert.status === 'reported';
 
     const distance = userLocation
         ? calculateDistance(userLocation[0], userLocation[1], alert.latitude, alert.longitude)
@@ -33,6 +34,9 @@ export function AlertCard({ alert }: AlertCardProps) {
                     </span>
                     {isResolved && (
                         <span className="bg-green-600 text-white text-xs px-2 py-0.5 rounded-full font-medium">Resolvido</span>
+                    )}
+                    {isReported && (
+                        <span className="bg-gray-600 text-white text-xs px-2 py-0.5 rounded-full font-medium">Denunciado</span>
                     )}
                 </div>
                 <span className="text-xs text-primary-400">
