@@ -4,7 +4,7 @@ import { MessageCircle, Plus, X, Search } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import * as communityService from '../services/community';
-import { supabase, type Topic } from '../lib/supabase';
+import { type Topic } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/Button';
 import { Input } from '../components/Input';
@@ -15,8 +15,8 @@ import { logError } from '../services/logger';
 
 export default function Community() {
     const navigate = useNavigate();
-    const { user } = useAuth();
-    const { profileNeighborhood, loading: locationLoading } = useCurrentNeighborhood();
+    const { user, profile } = useAuth();
+    const { profileNeighborhood } = useCurrentNeighborhood();
     const [topics, setTopics] = useState<Topic[]>([]);
     const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
@@ -26,10 +26,8 @@ export default function Community() {
     const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
-        if (!locationLoading) {
-            loadTopics();
-        }
-    }, [profileNeighborhood, locationLoading]);
+        loadTopics();
+    }, [profileNeighborhood]);
 
     const loadTopics = async () => {
         try {
@@ -57,12 +55,6 @@ export default function Community() {
 
         setSubmitting(true);
         try {
-            const { data: profile } = await supabase
-                .from('profiles')
-                .select('pseudonym')
-                .eq('id', user.id)
-                .single();
-
             await communityService.createTopic({
                 title: newTitle,
                 content: newContent,

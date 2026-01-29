@@ -1,5 +1,4 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
-import { supabase } from '../lib/supabase';
 import { useAuth } from './AuthContext';
 import { fetchAddressByCoords } from '../services/geocoding';
 import { logError } from '../services/logger';
@@ -21,48 +20,25 @@ interface LocationContextType {
 const LocationContext = createContext<LocationContextType | undefined>(undefined);
 
 export function LocationProvider({ children }: { children: ReactNode }) {
-    const { user } = useAuth();
-    const [profileLocation, setProfileLocation] = useState<LocationInfo | null>(null);
+    const { profile } = useAuth();
     const [gpsLocation, setGpsLocation] = useState<LocationInfo | null>(null);
     const [gpsCoords, setGpsCoords] = useState<[number, number] | null>(null);
-    const [loading, setLoading] = useState(true);
     const [gpsLoading, setGpsLoading] = useState(false);
+    const [initialGpsAttemptDone, setInitialGpsAttemptDone] = useState(false);
 
-    useEffect(() => {
-        if (user) {
-            fetchProfileLocation();
-        } else {
-            setProfileLocation(null);
-        }
-    }, [user]);
+    // Derived from global profile - available immediately once AuthContext loads profile
+    const profileLocation: LocationInfo | null = profile ? {
+        neighborhood: profile.neighborhood || '',
+        city: profile.city || ''
+    } : null;
 
     useEffect(() => {
         startGpsTracking();
     }, []);
 
-    const fetchProfileLocation = async () => {
-        try {
-            const { data } = await supabase
-                .from('profiles')
-                .select('neighborhood, city')
-                .eq('id', user?.id)
-                .single();
-            if (data) {
-                setProfileLocation({
-                    neighborhood: data.neighborhood || '',
-                    city: data.city || ''
-                });
-            }
-        } catch (error) {
-            console.error('Error fetching profile location:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
     const startGpsTracking = () => {
         if (!navigator.geolocation) {
-            setLoading(false);
+            setInitialGpsAttemptDone(true);
             return;
         }
 
@@ -86,7 +62,7 @@ export function LocationProvider({ children }: { children: ReactNode }) {
                     });
                 } finally {
                     setGpsLoading(false);
-                    setLoading(false);
+                    setInitialGpsAttemptDone(true);
                 }
             },
             (error) => {
@@ -97,7 +73,7 @@ export function LocationProvider({ children }: { children: ReactNode }) {
                     metadata: { code: error.code }
                 });
                 setGpsLoading(false);
-                setLoading(false);
+                setInitialGpsAttemptDone(true);
             },
             { enableHighAccuracy: true, timeout: 10000 }
         );
@@ -108,7 +84,7 @@ export function LocationProvider({ children }: { children: ReactNode }) {
             profileLocation,
             gpsLocation,
             gpsCoords,
-            loading,
+            loading: gpsLoading && !initialGpsAttemptDone, // Loading only during the first GPS lock
             gpsLoading,
             refreshGps: startGpsTracking
         }}>

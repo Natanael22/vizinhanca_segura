@@ -17,6 +17,8 @@ const AlertDetail = lazy(() => import('./pages/AlertDetail'));
 const Emergency = lazy(() => import('./pages/Emergency'));
 const Community = lazy(() => import('./pages/Community'));
 const Profile = lazy(() => import('./pages/Profile'));
+const MyAccount = lazy(() => import('./pages/MyAccount'));
+const Support = lazy(() => import('./pages/Support'));
 const TopicDetail = lazy(() => import('./pages/TopicDetail'));
 
 // Loading component
@@ -45,6 +47,8 @@ function App() {
                   <Route path="/community" element={<Community />} />
                   <Route path="/topic/:id" element={<TopicDetail />} />
                   <Route path="/profile" element={<Profile />} />
+                  <Route path="/my-account" element={<MyAccount />} />
+                  <Route path="/support" element={<Support />} />
                   <Route path="/alert/:id" element={<AlertDetail />} />
                   <Route path="/create-alert" element={<CreateAlert />} />
                   <Route path="*" element={<Navigate to="/" replace />} />

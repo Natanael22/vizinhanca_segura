@@ -1,18 +1,15 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { supabase } from '../lib/supabase';
-import { useState, useEffect } from 'react';
 
 import { BottomNav } from '../components/Navigation/BottomNav';
-import { User, Shield, CheckCircle, AlertTriangle, Settings, Bell, MapPin } from 'lucide-react';
+import { User, Shield, CheckCircle, AlertTriangle, Settings, MapPin, HeartPlus } from 'lucide-react';
 import { Button } from '../components/Button';
 import { useAlerts } from '../context/AlertContext';
 
 export default function Profile() {
     const navigate = useNavigate();
-    const { user, signOut } = useAuth();
+    const { profile, signOut } = useAuth();
     const { alerts } = useAlerts();
-    const [profile, setProfile] = useState<any>(null);
 
     const handleSignOut = async () => {
         try {
@@ -21,25 +18,6 @@ export default function Profile() {
         } catch (error) {
             console.error('Erro ao sair:', error);
         }
-    };
-
-    const handleMyAccount = () => {
-        alert('Funcionalidade de edição de conta em breve!');
-    };
-
-    useEffect(() => {
-        if (user) {
-            fetchProfile();
-        }
-    }, [user]);
-
-    const fetchProfile = async () => {
-        const { data } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', user?.id)
-            .single();
-        setProfile(data);
     };
 
     // Dynamic Stats Calculation
@@ -56,8 +34,8 @@ export default function Profile() {
     if (reputation > 1500) trustLevel = 'Guardião do Bairro';
 
     return (
-        <div className="flex flex-col h-full bg-primary-50">
-            <header className="bg-white p-6 pb-8 rounded-b-[2.5rem] shadow-sm relative overflow-hidden">
+        <div className="flex flex-col h-full bg-primary-50 relative">
+            <header className="bg-white p-6 pb-8 rounded-b-[2.5rem] shadow-sm relative overflow-hidden sticky top-0 z-20">
                 <div className="absolute top-0 right-0 p-8 opacity-5">
                     <Shield size={180} />
                 </div>
@@ -106,7 +84,7 @@ export default function Profile() {
                         <span className="text-accent-600 font-bold">{reputation} XP</span>
                     </div>
                     <div className="h-2 bg-primary-100 rounded-full overflow-hidden">
-                        <div className="h-full bg-accent-500 w-[65%]" />
+                        <div className="h-full bg-accent-500 w-[0%]" />
                     </div>
                     <p className="text-xs text-primary-400 mt-2">Continue contribuindo para subir de nível!</p>
                 </div>
@@ -114,22 +92,31 @@ export default function Profile() {
                 {/* Settings Teaser */}
                 <div className="space-y-3">
                     <h3 className="font-bold text-primary-900 ml-1">Configurações</h3>
-                    <button className="w-full bg-white p-4 rounded-xl shadow-sm border border-primary-100 flex items-center justify-between text-primary-700 hover:bg-primary-50 transition-colors">
-                        <div className="flex items-center gap-3">
+                    {/*<button className="w-full bg-white p-4 rounded-xl shadow-sm border border-primary-100 flex items-center justify-between text-primary-700 hover:bg-primary-50 transition-colors">
+                        <div className="flex items-center gap-3" >
                             <Bell size={20} />
                             <span>Notificações</span>
                         </div>
                         <div className="w-10 h-6 bg-green-500 rounded-full relative">
                             <div className="absolute right-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow-sm" />
                         </div>
-                    </button>
+                    </button>*/}
                     <button
-                        onClick={handleMyAccount}
+                        onClick={() => navigate('/my-account', { state: { profile } })}
                         className="w-full bg-white p-4 rounded-xl shadow-sm border border-primary-100 flex items-center justify-between text-primary-700 hover:bg-primary-50 transition-colors"
                     >
                         <div className="flex items-center gap-3">
                             <Settings size={20} />
                             <span>Minha Conta</span>
+                        </div>
+                    </button>
+                    <button
+                        onClick={() => navigate('/support')}
+                        className="w-full bg-white p-4 rounded-xl shadow-sm border border-primary-100 flex items-center justify-between text-primary-700 hover:bg-primary-50 transition-colors"
+                    >
+                        <div className="flex items-center gap-3">
+                            <HeartPlus size={20} className="text-red-400" />
+                            <span>Apoie o Projeto</span>
                         </div>
                     </button>
                 </div>
