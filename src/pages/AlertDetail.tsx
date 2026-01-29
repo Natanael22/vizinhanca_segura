@@ -11,6 +11,7 @@ import { Input } from '../components/Input';
 import { useAuth } from '../context/AuthContext';
 import { AlertTriangle, CheckCircle2, Loader2 } from 'lucide-react';
 import { ConfirmModal } from '../components/ConfirmModal';
+import { logError } from '../services/logger';
 
 export default function AlertDetail() {
     const { id } = useParams<{ id: string }>();
@@ -49,8 +50,13 @@ export default function AlertDetail() {
             await reportAlert(alert.id);
             setShowReportConfirm(false);
             //navigate(-1);
-        } catch (err) {
-            console.error('Error reporting alert:', err);
+        } catch (err: any) {
+            //console.error('Error reporting alert:', err);
+            logError({
+                message: err.message,
+                context: 'AlertDetail.handleReport',
+                metadata: { email: user?.email || 'anonymous' }
+            });
         } finally {
             setIsActionLoading(false);
         }
@@ -61,8 +67,13 @@ export default function AlertDetail() {
         try {
             await resolveAlert(alert.id);
             navigate(-1);
-        } catch (err) {
-            console.error('Error resolving alert:', err);
+        } catch (err: any) {
+            //console.error('Error resolving alert:', err);
+            logError({
+                message: err.message,
+                context: 'AlertDetail.handleResolve',
+                metadata: { email: user?.email || 'anonymous' }
+            });
         } finally {
             setIsActionLoading(false);
         }
@@ -74,8 +85,13 @@ export default function AlertDetail() {
         try {
             await addComment(alert.id, commentText);
             setCommentText('');
-        } catch (err) {
-            console.error('Error adding comment:', err);
+        } catch (err: any) {
+            //console.error('Error adding comment:', err);
+            logError({
+                message: err.message,
+                context: 'AlertDetail.submitComment',
+                metadata: { email: user?.email || 'anonymous' }
+            });
         }
     };
 

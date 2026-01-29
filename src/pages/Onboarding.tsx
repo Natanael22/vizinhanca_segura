@@ -8,6 +8,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { sendOTP } from '../services/whatsapp';
 import { logError } from '../services/logger';
+import { useNotification } from '../context/NotificationContext';
+import { translateError } from '../utils/errors';
 
 type LocationState = {
     neighborhood: string;
@@ -19,6 +21,7 @@ export default function Onboarding() {
     const navigate = useNavigate();
     const routeLocation = useLocation();
     const { signUp } = useAuth();
+    const { showNotification } = useNotification();
 
     // Get registration data from Register page
     const registrationData = routeLocation.state?.registrationData;
@@ -44,7 +47,7 @@ export default function Onboarding() {
         setError('');
 
         if (!navigator.geolocation) {
-            setError('Geolocalização não suportada pelo seu navegador');
+            setError('Geolocalização não suportada');
             setIsLocating(false);
             return;
         }
@@ -66,8 +69,14 @@ export default function Onboarding() {
                     setIsLocating(false);
                 }
             },
-            () => {
-                setError('Permissão de localização negada ou indisponível.');
+            (err) => {
+                let errorType = 'User denied Geolocation';
+                if (err.code === err.TIMEOUT) errorType = 'Position acquisition timed out';
+
+                const { title, message } = translateError(errorType);
+                showNotification({ title, message, type: 'error' });
+
+                setError(message);
                 setIsLocating(false);
             }
         );
@@ -79,15 +88,11 @@ export default function Onboarding() {
         setIsSendingCode(true);
         setError('');
 
-        // Generate a 6-digit code
         const code = Math.floor(100000 + Math.random() * 900000).toString();
         setVerificationCode(code);
 
         try {
             await sendOTP(registrationData.phone, code);
-            // In dev mode with hello_world, we might not actually see the code in WhatsApp
-            // but for this demo/test we'll log it if needed or just proceed
-            //console.log('OTP Code generated:', code);
         } catch (err: any) {
             setError(err.message || 'Erro ao enviar código. Verifique se o número está correto.');
             logError({
@@ -102,7 +107,7 @@ export default function Onboarding() {
 
     const handleVerifyCode = () => {
         setIsVerifyingCode(true);
-        if (userCode === verificationCode) { // Allow 123456 as bypass for now
+        if (userCode === verificationCode) {
             setStep(3);
             setError('');
         } else {
@@ -149,7 +154,6 @@ export default function Onboarding() {
         setIsFinishing(true);
         setError('');
         try {
-            // Perform single signUp with ALL data
             await signUp(
                 registrationData.email,
                 registrationData.password,
@@ -158,13 +162,25 @@ export default function Onboarding() {
                 location.neighborhood,
                 location.city,
                 location.state
-
             );
 
             navigate('/home');
         } catch (err: any) {
-            console.error('Registration error:', err);
-            setError(err.message || 'Erro ao criar conta. Verifique os dados e tente novamente.');
+            //console.error('Registration error:', err);
+
+            const { title, message } = translateError(err.message);
+            showNotification({
+                title,
+                message,
+                type: 'error',
+                onClose: () => {
+                    if (err.message.includes('User already registered')) {
+                        navigate('/login');
+                    }
+                }
+            });
+
+            setError(message);
             logError({
                 message: err.message,
                 stack: err.stack,

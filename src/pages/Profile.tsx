@@ -5,6 +5,7 @@ import { BottomNav } from '../components/Navigation/BottomNav';
 import { User, Shield, CheckCircle, AlertTriangle, Settings, MapPin, HeartPlus } from 'lucide-react';
 import { Button } from '../components/Button';
 import { useAlerts } from '../context/AlertContext';
+import { logError } from '../services/logger';
 
 export default function Profile() {
     const navigate = useNavigate();
@@ -15,8 +16,13 @@ export default function Profile() {
         try {
             await signOut();
             navigate('/');
-        } catch (error) {
-            console.error('Erro ao sair:', error);
+        } catch (error: any) {
+            //console.error('Erro ao sair:', error);
+            await logError({
+                message: error.message,
+                context: 'Profile.handleSignOut',
+                metadata: { email: profile?.email || 'anonymous' }
+            });
         }
     };
 

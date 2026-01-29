@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { submitFeedback } from '../services/feedback';
 import { Button } from '../components/Button';
 import { ArrowLeft, MessageSquare, Heart, Copy, CheckCircle2, MessageCircle, Bug, Sparkles } from 'lucide-react';
+import { logError } from '../services/logger';
 
 export default function Support() {
     const navigate = useNavigate();
@@ -41,8 +42,13 @@ export default function Support() {
             setContent('');
             // Reset success message after 5 seconds
             setTimeout(() => setSubmitted(false), 5000);
-        } catch (err) {
-            console.error('Error submitting feedback:', err);
+        } catch (err: any) {
+            //console.error('Error submitting feedback:', err);
+            await logError({
+                message: err.message,
+                context: 'Support.handleSubmit',
+                metadata: { email: profile?.email || 'anonymous' }
+            });
             setError('Erro ao enviar. Verifique sua conexão e tente novamente.');
         } finally {
             setSubmitting(false);

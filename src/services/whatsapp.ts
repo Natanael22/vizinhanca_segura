@@ -1,3 +1,5 @@
+import { logError } from "./logger";
+
 const PHONE_NUMBER_ID = import.meta.env.VITE_WHATSAPP_PHONE_NUMBER_ID;
 const ACCESS_TOKEN = import.meta.env.VITE_WHATSAPP_ACCESS_TOKEN;
 
@@ -63,13 +65,25 @@ export async function sendOTP(phone: string, code: string) {
         const data = await response.json();
 
         if (!response.ok) {
-            console.error('WhatsApp API Error Response:', data);
+            //console.error('WhatsApp API Error Response:', data);
+            await logError({
+                message: data.error?.message || 'Falha ao enviar código via WhatsApp.',
+                stack: data.error?.stack,
+                context: 'whatsapp.sendOTP',
+                metadata: { phone, code }
+            });
             throw new Error(data.error?.message || 'Falha ao enviar código via WhatsApp.');
         }
 
         return data;
     } catch (error: any) {
-        console.error('WhatsApp Service Error:', error.message);
+        //console.error('WhatsApp Service Error:', error.message);
+        await logError({
+            message: error.message,
+            stack: error.stack,
+            context: 'whatsapp.sendOTP',
+            metadata: { phone, code }
+        });
         throw error;
     }
 }

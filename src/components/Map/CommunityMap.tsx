@@ -83,7 +83,8 @@ export default function CommunityMap() {
                         .filter(a => a.status === 'active')
                         .filter(a => {
                             if (!userLocation) return true; // Se não tem localização, mostra tudo (ou nada? assumindo tudo por enquanto)
-                            const dist = calculateDistance(
+                            //const dist = 
+                            calculateDistance(
                                 userLocation[0],
                                 userLocation[1],
                                 a.latitude,

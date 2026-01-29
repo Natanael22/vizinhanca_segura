@@ -30,6 +30,7 @@ export async function logError({ message, stack, context, metadata }: LogErrorPa
 
         if (error) {
             console.error('Failed to save log to Supabase:', error);
+
         }
     } catch (err) {
         console.error('Critical error in logger service:', err);

@@ -2,6 +2,8 @@ import { createContext, useContext, useState, useEffect, type ReactNode } from '
 import { useAuth } from './AuthContext';
 import { fetchAddressByCoords } from '../services/geocoding';
 import { logError } from '../services/logger';
+import { useNotification } from './NotificationContext';
+import { translateError } from '../utils/errors';
 
 interface LocationInfo {
     neighborhood: string;
@@ -21,6 +23,7 @@ const LocationContext = createContext<LocationContextType | undefined>(undefined
 
 export function LocationProvider({ children }: { children: ReactNode }) {
     const { profile } = useAuth();
+    const { showNotification } = useNotification();
     const [gpsLocation, setGpsLocation] = useState<LocationInfo | null>(null);
     const [gpsCoords, setGpsCoords] = useState<[number, number] | null>(null);
     const [gpsLoading, setGpsLoading] = useState(false);
@@ -42,6 +45,14 @@ export function LocationProvider({ children }: { children: ReactNode }) {
             return;
         }
 
+        // Check for secure context (HTTPS)
+        if (!window.isSecureContext) {
+            const { title, message } = translateError('Only secure origins are allowed');
+            showNotification({ title, message, type: 'warning' });
+            setInitialGpsAttemptDone(true);
+            return;
+        }
+
         setGpsLoading(true);
         navigator.geolocation.getCurrentPosition(
             async (position) => {
@@ -54,7 +65,7 @@ export function LocationProvider({ children }: { children: ReactNode }) {
                         city: address.city
                     });
                 } catch (error: any) {
-                    console.error('GPS Geocoding error:', error);
+                    //console.error('GPS Geocoding error:', error);
                     await logError({
                         message: error.message,
                         context: 'LocationContext.startGpsTracking.geocoding',
@@ -66,7 +77,15 @@ export function LocationProvider({ children }: { children: ReactNode }) {
                 }
             },
             (error) => {
-                console.error('GPS Tracking error:', error);
+                //console.error('GPS Tracking error:', error);
+
+                // User-friendly notification
+                let errorType = 'User denied Geolocation';
+                if (error.code === error.TIMEOUT) errorType = 'Position acquisition timed out';
+
+                const { title, message } = translateError(errorType);
+                showNotification({ title, message, type: 'error' });
+
                 logError({
                     message: error.message,
                     context: 'LocationContext.startGpsTracking.navigator',

@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AlertProvider } from './context/AlertContext';
 import { AuthProvider } from './context/AuthContext';
 import { LocationProvider } from './context/LocationContext';
+import { NotificationProvider } from './context/NotificationContext';
 import MobileLayout from './layout/MobileLayout';
 
 // Lazy load components
@@ -30,35 +31,37 @@ const PageLoader = () => (
 
 function App() {
   return (
-    <Router>
+    <NotificationProvider>
       <AuthProvider>
         <LocationProvider>
           <AlertProvider>
-            <Suspense fallback={<PageLoader />}>
-              <Routes>
-                <Route element={<MobileLayout />}>
-                  <Route path="/" element={<Welcome />} />
-                  <Route path="/register" element={<Register />} />
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/onboarding" element={<Onboarding />} />
-                  <Route path="/home" element={<Home />} />
-                  <Route path="/feed" element={<Feed />} />
-                  <Route path="/emergency" element={<Emergency />} />
-                  <Route path="/community" element={<Community />} />
-                  <Route path="/topic/:id" element={<TopicDetail />} />
-                  <Route path="/profile" element={<Profile />} />
-                  <Route path="/my-account" element={<MyAccount />} />
-                  <Route path="/support" element={<Support />} />
-                  <Route path="/alert/:id" element={<AlertDetail />} />
-                  <Route path="/create-alert" element={<CreateAlert />} />
-                  <Route path="*" element={<Navigate to="/" replace />} />
-                </Route>
-              </Routes>
-            </Suspense>
+            <Router>
+              <Suspense fallback={<PageLoader />}>
+                <Routes>
+                  <Route element={<MobileLayout />}>
+                    <Route path="/" element={<Welcome />} />
+                    <Route path="/register" element={<Register />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/onboarding" element={<Onboarding />} />
+                    <Route path="/home" element={<Home />} />
+                    <Route path="/feed" element={<Feed />} />
+                    <Route path="/emergency" element={<Emergency />} />
+                    <Route path="/community" element={<Community />} />
+                    <Route path="/topic/:id" element={<TopicDetail />} />
+                    <Route path="/profile" element={<Profile />} />
+                    <Route path="/my-account" element={<MyAccount />} />
+                    <Route path="/support" element={<Support />} />
+                    <Route path="/alert/:id" element={<AlertDetail />} />
+                    <Route path="/create-alert" element={<CreateAlert />} />
+                    <Route path="*" element={<Navigate to="/" replace />} />
+                  </Route>
+                </Routes>
+              </Suspense>
+            </Router>
           </AlertProvider>
         </LocationProvider>
       </AuthProvider>
-    </Router>
+    </NotificationProvider>
   )
 }
 

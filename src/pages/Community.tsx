@@ -34,7 +34,7 @@ export default function Community() {
             const data = await communityService.getTopics(profileNeighborhood || undefined);
             setTopics(data);
         } catch (error: any) {
-            console.error('Error loading topics:', error);
+            //console.error('Error loading topics:', error);
             await logError({
                 message: error.message,
                 context: 'Community.loadTopics',
@@ -67,7 +67,7 @@ export default function Community() {
             setShowForm(false);
             loadTopics();
         } catch (error: any) {
-            console.error('Error creating topic:', error);
+            //console.error('Error creating topic:', error);
             await logError({
                 message: error.message,
                 stack: error.stack,

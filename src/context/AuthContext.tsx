@@ -1,6 +1,7 @@
 import { useState, useEffect, createContext, useContext, useCallback } from 'react';
 import { supabase, type Profile } from '../lib/supabase';
 import type { User, Session } from '@supabase/supabase-js';
+import { logError } from '../services/logger';
 
 type AuthContextType = {
     user: User | null;
@@ -39,8 +40,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
             if (error) throw error;
             setProfile(data);
-        } catch (error) {
-            console.error('Error refreshing profile:', error);
+        } catch (error: any) {
+            //console.error('Error refreshing profile:', error);  
+            logError({
+                message: error.message,
+                context: 'AuthContext.refreshProfile',
+                metadata: { email: user?.email || 'anonymous' }
+            });
         }
     }, []);
 

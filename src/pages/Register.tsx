@@ -1,12 +1,18 @@
 import { useState } from 'react';
 import { Input } from '../components/Input';
 import { Button } from '../components/Button';
-import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, RefreshCw, ShieldCheck } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { ArrowLeft, RefreshCw, ShieldCheck, Loader2 } from 'lucide-react';
 import { generateRandomPseudonym } from '../utils/pseudonym';
+import { supabase } from '../lib/supabase';
+import { useNotification } from '../context/NotificationContext';
+import { translateError } from '../utils/errors';
+import { logError } from '../services/logger';
 
 export default function Register() {
     const navigate = useNavigate();
+    const { showNotification } = useNotification();
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [formData, setFormData] = useState({
         pseudonym: generateRandomPseudonym(),
@@ -34,11 +40,40 @@ export default function Register() {
             return;
         }
 
+        setLoading(true);
         try {
-            // Instead of signing up now, pass data to onboarding
+            // Check if email or phone already exists using a secure RPC function
+            // to bypass RLS safely for anonymous users
+            const { data: userExists, error: rpcError } = await supabase
+                .rpc('check_user_exists', {
+                    email_to_check: formData.email
+                });
+
+            if (rpcError) throw rpcError;
+
+            if (userExists) {
+                const { title, message } = translateError('User already registered');
+                showNotification({
+                    title,
+                    message,
+                    type: 'error',
+                    onClose: () => navigate('/login')
+                });
+                return;
+            }
+
+            // If everything is fine, proceed to onboarding
             navigate('/onboarding', { state: { registrationData: formData } });
         } catch (err: any) {
-            setError('Erro ao processar dados. Tente novamente.');
+            //console.error('Check registration error:', err);
+            await logError({
+                message: err.message,
+                context: 'Register.handleRegister',
+                metadata: { email: formData.email || 'anonymous' }
+            });
+            setError('Erro ao verificar dados. Tente novamente.');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -122,8 +157,15 @@ export default function Register() {
                 )}
 
                 <div className="pt-4">
-                    <Button type="submit" className="w-full">
-                        Continuar
+                    <Button type="submit" className="w-full" disabled={loading}>
+                        {loading ? (
+                            <div className="flex items-center gap-2">
+                                <Loader2 size={20} className="animate-spin" />
+                                <span>Verificando...</span>
+                            </div>
+                        ) : (
+                            'Continuar'
+                        )}
                     </Button>
                 </div>
             </form>

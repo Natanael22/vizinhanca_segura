@@ -86,7 +86,12 @@ export default function CreateAlert() {
                 .single();
 
             if (profileError) {
-                console.error('Profile error:', profileError);
+                //console.error('Profile error:', profileError);
+                await logError({
+                    message: profileError.message,
+                    context: 'CreateAlert.handleSubmit.validation',
+                    metadata: { step: 'profile_fetch' }
+                });
                 throw new Error('Erro ao buscar perfil do usuário');
             }
 
@@ -98,8 +103,13 @@ export default function CreateAlert() {
                 setUploading(true);
                 try {
                     photoUrl = await alertService.uploadAlertPhoto(photo);
-                } catch (uploadErr) {
-                    console.error('Photo upload error:', uploadErr);
+                } catch (uploadErr: any) {
+                    //console.error('Photo upload error:', uploadErr);
+                    await logError({
+                        message: uploadErr.message,
+                        context: 'CreateAlert.handleSubmit.photo_upload',
+                        metadata: { step: 'photo_upload' }
+                    });
                     // We'll continue without the photo if upload fails, or we could stop? 
                     // Let's stop and show error to be safe.
                     setError('Erro ao enviar a foto. Tente novamente ou remova a foto.');
@@ -136,7 +146,7 @@ export default function CreateAlert() {
 
             navigate('/home');
         } catch (err: any) {
-            console.error('Error creating alert:', err);
+            //console.error('Error creating alert:', err);
             setError(err.message || 'Erro ao criar alerta. Tente novamente.');
 
             // Log error to Supabase

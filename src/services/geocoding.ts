@@ -1,3 +1,5 @@
+import { logError } from "./logger";
+
 export async function fetchAddressByCoords(lat: number, lng: number) {
     try {
         const response = await fetch(
@@ -20,8 +22,14 @@ export async function fetchAddressByCoords(lat: number, lng: number) {
             state: address.state,
             street: address.road || address.pedestrian
         };
-    } catch (error) {
-        console.error('Reverse geocoding error:', error);
+    } catch (error: any) {
+        //console.error('Reverse geocoding error:', error);
+        await logError({
+            message: error.message,
+            stack: error.stack,
+            context: 'geocoding.fetchAddressByCoords',
+            metadata: { lat, lng }
+        });
         throw error;
     }
 }

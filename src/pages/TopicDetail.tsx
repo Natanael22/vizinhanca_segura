@@ -37,7 +37,7 @@ export default function TopicDetail() {
             setTopic(topicData);
             setReplies(repliesData);
         } catch (error: any) {
-            console.error('Error loading topic/replies:', error);
+            //console.error('Error loading topic/replies:', error);
             await logError({
                 message: error.message,
                 stack: error.stack,
@@ -67,7 +67,7 @@ export default function TopicDetail() {
             const updatedReplies = await communityService.getReplies(id);
             setReplies(updatedReplies);
         } catch (error: any) {
-            console.error('Error adding reply:', error);
+            //console.error('Error adding reply:', error);
             await logError({
                 message: error.message,
                 stack: error.stack,

@@ -3,6 +3,8 @@ import { supabase } from '../lib/supabase';
 import * as alertService from '../services/alerts';
 import { useAuth } from './AuthContext';
 import { type Alert } from '../types/alert';
+import { logError } from '../services/logger';
+
 
 interface AlertContextType {
     alerts: Alert[];
@@ -97,8 +99,13 @@ export function AlertProvider({ children }: { children: ReactNode }) {
             }));
 
             setAlerts(mappedAlerts);
-        } catch (error) {
-            console.error('Error loading alerts:', error);
+        } catch (error: any) {
+            //console.error('Error loading alerts:', error);
+            logError({
+                message: error.message,
+                context: 'AlertContext.loadAlerts',
+                metadata: { email: user?.email || 'anonymous' }
+            });
         } finally {
             setLoading(false);
         }
@@ -121,8 +128,13 @@ export function AlertProvider({ children }: { children: ReactNode }) {
         try {
             await alertService.createAlert(newAlert);
             await loadAlerts();
-        } catch (error) {
-            console.error('Error creating alert:', error);
+        } catch (error: any) {
+            //console.error('Error creating alert:', error);
+            logError({
+                message: error.message,
+                context: 'AlertContext.loadAlerts',
+                metadata: { email: user?.email || 'anonymous' }
+            });
             throw error;
         }
     };
@@ -134,8 +146,13 @@ export function AlertProvider({ children }: { children: ReactNode }) {
             setAlerts(prev => prev.map(alert =>
                 alert.id === id ? { ...alert, confirmations: alert.confirmations + 1 } : alert
             ));
-        } catch (error) {
-            console.error('Error confirming alert:', error);
+        } catch (error: any) {
+            //console.error('Error confirming alert:', error);
+            logError({
+                message: error.message,
+                context: 'AlertContext.loadAlerts',
+                metadata: { email: user?.email || 'anonymous' }
+            });
             throw error;
         }
     };
@@ -153,8 +170,13 @@ export function AlertProvider({ children }: { children: ReactNode }) {
                 //return alert;
                 //}
             ));
-        } catch (error) {
-            console.error('Error reporting alert:', error);
+        } catch (error: any) {
+            //console.error('Error reporting alert:', error);
+            logError({
+                message: error.message,
+                context: 'AlertContext.loadAlerts',
+                metadata: { email: user?.email || 'anonymous' }
+            });
             throw error;
         }
     };
@@ -165,8 +187,13 @@ export function AlertProvider({ children }: { children: ReactNode }) {
             setAlerts(prev => prev.map(alert =>
                 alert.id === id ? { ...alert, status: 'resolved' } : alert
             ));
-        } catch (error) {
-            console.error('Error resolving alert:', error);
+        } catch (error: any) {
+            //console.error('Error resolving alert:', error);
+            logError({
+                message: error.message,
+                context: 'AlertContext.loadAlerts',
+                metadata: { email: user?.email || 'anonymous' }
+            });
             throw error;
         }
     };
@@ -185,8 +212,13 @@ export function AlertProvider({ children }: { children: ReactNode }) {
 
             // Real-time update will handle the list, but we could also loadAlerts() or update state
             loadAlerts();
-        } catch (error) {
-            console.error('Error adding comment:', error);
+        } catch (error: any) {
+            //console.error('Error adding comment:', error);
+            logError({
+                message: error.message,
+                context: 'AlertContext.loadAlerts',
+                metadata: { email: user?.email || 'anonymous' }
+            });
             throw error;
         }
     };

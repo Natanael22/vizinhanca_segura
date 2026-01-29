@@ -5,6 +5,7 @@ import { updateProfile } from '../services/profiles';
 import { Button } from '../components/Button';
 import { Input } from '../components/Input';
 import { ArrowLeft, User, Phone, MapPin, Save } from 'lucide-react';
+import { logError } from '../services/logger';
 
 export default function MyAccount() {
     const navigate = useNavigate();
@@ -45,8 +46,13 @@ export default function MyAccount() {
             setTimeout(() => {
                 navigate('/profile');
             }, 1000);
-        } catch (err) {
-            console.error('Error updating profile:', err);
+        } catch (err: any) {
+            //console.error('Error updating profile:', err);
+            await logError({
+                message: err.message,
+                context: 'MyAccount.handleSave',
+                metadata: { email: user?.email || 'anonymous' }
+            });
             setError('Erro ao salvar as alterações.');
         } finally {
             setSaving(false);

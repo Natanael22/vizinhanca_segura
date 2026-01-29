@@ -5,12 +5,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { logError } from '../services/logger';
+import { useNotification } from '../context/NotificationContext';
+import { translateError } from '../utils/errors';
 
 export default function Login() {
     const navigate = useNavigate();
     const { signIn } = useAuth();
+    const { showNotification } = useNotification();
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
     const [formData, setFormData] = useState({
         email: '',
         password: '',
@@ -18,14 +20,15 @@ export default function Login() {
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
-        setError('');
         setLoading(true);
 
         try {
             await signIn(formData.email, formData.password);
             navigate('/home');
         } catch (err: any) {
-            setError(err.message || 'Email ou senha incorretos');
+            const { title, message } = translateError(err.message);
+            showNotification({ title, message, type: 'error' });
+
             logError({
                 message: err.message,
                 context: 'Login.handleLogin',
@@ -64,11 +67,6 @@ export default function Login() {
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 />
 
-                {error && (
-                    <p className="text-red-500 text-sm bg-red-50 p-3 rounded-lg border border-red-100">
-                        {error}
-                    </p>
-                )}
 
                 <div className="pt-4">
                     <Button type="submit" className="w-full" disabled={loading}>
