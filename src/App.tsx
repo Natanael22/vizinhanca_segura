@@ -7,6 +7,8 @@ import { NotificationProvider } from './context/NotificationContext';
 import MobileLayout from './layout/MobileLayout';
 
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { TourProvider } from './context/TourContext';
+import { AppTour } from './components/Tour/AppTour';
 
 // Lazy load components
 const Welcome = lazy(() => import('./pages/Welcome'));
@@ -63,35 +65,38 @@ function App() {
       <AuthProvider>
         <LocationProvider>
           <AlertProvider>
-            <Router>
-              <ErrorBoundary>
-                <Suspense fallback={<PageLoader />}>
-                  <Routes>
-                    <Route element={<MobileLayout />}>
-                      {/* Public Routes */}
-                      <Route path="/" element={<PublicRoute><Welcome /></PublicRoute>} />
-                      <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
-                      <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
-                      <Route path="/onboarding" element={<Onboarding />} />
+            <TourProvider>
+              <Router>
+                <ErrorBoundary>
+                  <Suspense fallback={<PageLoader />}>
+                    <Routes>
+                      <Route element={<MobileLayout />}>
+                        {/* Public Routes */}
+                        <Route path="/" element={<PublicRoute><Welcome /></PublicRoute>} />
+                        <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
+                        <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+                        <Route path="/onboarding" element={<Onboarding />} />
 
-                      {/* Private Routes */}
-                      <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
-                      <Route path="/feed" element={<ProtectedRoute><Feed /></ProtectedRoute>} />
-                      <Route path="/emergency" element={<ProtectedRoute><Emergency /></ProtectedRoute>} />
-                      <Route path="/community" element={<ProtectedRoute><Community /></ProtectedRoute>} />
-                      <Route path="/topic/:id" element={<ProtectedRoute><TopicDetail /></ProtectedRoute>} />
-                      <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-                      <Route path="/my-account" element={<ProtectedRoute><MyAccount /></ProtectedRoute>} />
-                      <Route path="/support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
-                      <Route path="/alert/:id" element={<ProtectedRoute><AlertDetail /></ProtectedRoute>} />
-                      <Route path="/create-alert" element={<ProtectedRoute><CreateAlert /></ProtectedRoute>} />
+                        {/* Private Routes */}
+                        <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+                        <Route path="/feed" element={<ProtectedRoute><Feed /></ProtectedRoute>} />
+                        <Route path="/emergency" element={<ProtectedRoute><Emergency /></ProtectedRoute>} />
+                        <Route path="/community" element={<ProtectedRoute><Community /></ProtectedRoute>} />
+                        <Route path="/topic/:id" element={<ProtectedRoute><TopicDetail /></ProtectedRoute>} />
+                        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+                        <Route path="/my-account" element={<ProtectedRoute><MyAccount /></ProtectedRoute>} />
+                        <Route path="/support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
+                        <Route path="/alert/:id" element={<ProtectedRoute><AlertDetail /></ProtectedRoute>} />
+                        <Route path="/create-alert" element={<ProtectedRoute><CreateAlert /></ProtectedRoute>} />
 
-                      <Route path="*" element={<Navigate to="/" replace />} />
-                    </Route>
-                  </Routes>
-                </Suspense>
-              </ErrorBoundary>
-            </Router>
+                        <Route path="*" element={<Navigate to="/" replace />} />
+                      </Route>
+                    </Routes>
+                  </Suspense>
+                </ErrorBoundary>
+              </Router>
+              <AppTour />
+            </TourProvider>
           </AlertProvider>
         </LocationProvider>
       </AuthProvider>

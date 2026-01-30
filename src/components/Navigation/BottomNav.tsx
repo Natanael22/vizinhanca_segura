@@ -9,6 +9,7 @@ export function BottomNav() {
             style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom, 0px))' }}
         >
             <NavLink
+                id="tour-map"
                 to="/home"
                 className={({ isActive }) => clsx(
                     "flex flex-col items-center justify-center p-2 rounded-lg w-20 transition-colors",
@@ -20,6 +21,7 @@ export function BottomNav() {
             </NavLink>
 
             <NavLink
+                id="tour-feed"
                 to="/feed"
                 className={({ isActive }) => clsx(
                     "flex flex-col items-center justify-center p-2 rounded-lg w-20 transition-colors",
@@ -31,6 +33,7 @@ export function BottomNav() {
             </NavLink>
 
             <NavLink
+                id="tour-sos"
                 to="/emergency"
                 className={({ isActive }) => clsx(
                     "flex flex-col items-center justify-center p-2 rounded-lg w-20 transition-colors",
@@ -44,6 +47,7 @@ export function BottomNav() {
             </NavLink>
 
             <NavLink
+                id="tour-community"
                 to="/community"
                 className={({ isActive }) => clsx(
                     "flex flex-col items-center justify-center p-2 rounded-lg w-20 transition-colors",
@@ -55,6 +59,7 @@ export function BottomNav() {
             </NavLink>
 
             <NavLink
+                id="tour-profile"
                 to="/profile"
                 className={({ isActive }) => clsx(
                     "flex flex-col items-center justify-center p-2 rounded-lg w-20 transition-colors",
