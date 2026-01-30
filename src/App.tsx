@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react';
+import React, { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AlertProvider } from './context/AlertContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -7,6 +7,7 @@ import { NotificationProvider } from './context/NotificationContext';
 import MobileLayout from './layout/MobileLayout';
 
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { PageLoader } from './components/PageLoader';
 import { TourProvider } from './context/TourContext';
 import { AppTour } from './components/Tour/AppTour';
 
@@ -14,7 +15,6 @@ import { AppTour } from './components/Tour/AppTour';
 const Welcome = lazy(() => import('./pages/Welcome'));
 const Login = lazy(() => import('./pages/Login'));
 const Register = lazy(() => import('./pages/Register'));
-const Onboarding = lazy(() => import('./pages/Onboarding'));
 const Home = lazy(() => import('./pages/Home'));
 const CreateAlert = lazy(() => import('./pages/CreateAlert'));
 const Feed = lazy(() => import('./pages/Feed'));
@@ -27,11 +27,6 @@ const Support = lazy(() => import('./pages/Support'));
 const TopicDetail = lazy(() => import('./pages/TopicDetail'));
 
 // Loading component
-const PageLoader = () => (
-  <div className="flex items-center justify-center h-[100dvh] bg-primary-50">
-    <div className="w-10 h-10 border-4 border-accent-200 border-t-accent-600 rounded-full animate-spin"></div>
-  </div>
-);
 
 // Protected Route Component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -88,6 +83,7 @@ function App() {
                         <Route path="/support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
                         <Route path="/alert/:id" element={<ProtectedRoute><AlertDetail /></ProtectedRoute>} />
                         <Route path="/create-alert" element={<ProtectedRoute><CreateAlert /></ProtectedRoute>} />
+
 
                         <Route path="*" element={<Navigate to="/" replace />} />
                       </Route>

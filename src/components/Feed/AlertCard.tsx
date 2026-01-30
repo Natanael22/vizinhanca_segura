@@ -12,7 +12,7 @@ interface AlertCardProps {
 
 export function AlertCard({ alert }: AlertCardProps) {
     const userLocation = useUserLocation();
-    const typeConfig = ALERT_TYPES[alert.type as keyof typeof ALERT_TYPES];
+    const typeConfig = ALERT_TYPES[alert.type as keyof typeof ALERT_TYPES] || ALERT_TYPES.other;
     const isResolved = alert.status === 'resolved';
     const isReported = alert.status === 'reported';
 
