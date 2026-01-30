@@ -11,7 +11,6 @@ import { Input } from '../components/Input';
 import { useCurrentNeighborhood } from '../hooks/useCurrentNeighborhood';
 
 import { useNavigate } from 'react-router-dom';
-import { logError } from '../services/logger';
 
 export default function Community() {
     const navigate = useNavigate();
@@ -30,16 +29,31 @@ export default function Community() {
     }, [profileNeighborhood]);
 
     const loadTopics = async () => {
+        // Safety timeout for Supabase promise
+        const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('TIMEOUT_DATABASE')), 8000)
+        );
+
         try {
-            const data = await communityService.getTopics(profileNeighborhood || undefined);
+            const data = await Promise.race([
+                communityService.getTopics(profileNeighborhood || undefined),
+                timeoutPromise
+            ]) as Topic[];
+
             setTopics(data);
         } catch (error: any) {
-            //console.error('Error loading topics:', error);
-            await logError({
-                message: error.message,
-                context: 'Community.loadTopics',
-                metadata: { neighborhood: profileNeighborhood }
-            });
+            if (error.message === 'TIMEOUT_DATABASE') {
+                console.warn('Community topics load timed out');
+            } else {
+                try {
+                    const { logError } = await import('../services/logger');
+                    await logError({
+                        message: error.message,
+                        context: 'Community.loadTopics',
+                        metadata: { neighborhood: profileNeighborhood }
+                    });
+                } catch (e) { /* ignore secondary error */ }
+            }
         } finally {
             setLoading(false);
         }
@@ -67,17 +81,13 @@ export default function Community() {
             setShowForm(false);
             loadTopics();
         } catch (error: any) {
-            //console.error('Error creating topic:', error);
-            await logError({
-                message: error.message,
-                stack: error.stack,
-                context: 'Community.handleCreateTopic',
-                metadata: { title: newTitle }
-            });
+            console.log('Error creating topic:', error);
+
         } finally {
             setSubmitting(false);
         }
     };
+
     return (
         <div className="flex flex-col h-full bg-primary-50">
             <header className="p-4 bg-white border-b border-primary-200 sticky top-0 z-10 shadow-sm flex items-center gap-2">

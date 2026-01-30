@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useNotification } from '../context/NotificationContext';
 
 import { BottomNav } from '../components/Navigation/BottomNav';
 import { User, Shield, CheckCircle, AlertTriangle, Settings, MapPin, HeartPlus } from 'lucide-react';
@@ -10,14 +11,22 @@ import { logError } from '../services/logger';
 export default function Profile() {
     const navigate = useNavigate();
     const { profile, signOut } = useAuth();
+    const { showNotification } = useNotification();
     const { alerts } = useAlerts();
 
     const handleSignOut = async () => {
+        console.log('handleSignOut initiated');
         try {
             await signOut();
+            console.log('signOut successful');
             navigate('/');
         } catch (error: any) {
-            //console.error('Erro ao sair:', error);
+            console.log('Logout error:', error);
+            showNotification({
+                title: 'Erro ao sair',
+                message: 'Não conseguimos encerrar sua sessão. Tente novamente.',
+                type: 'error'
+            });
             await logError({
                 message: error.message,
                 context: 'Profile.handleSignOut',
@@ -107,6 +116,7 @@ export default function Profile() {
                             <div className="absolute right-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow-sm" />
                         </div>
                     </button>*/}
+
                     <button
                         onClick={() => navigate('/my-account', { state: { profile } })}
                         className="w-full bg-white p-4 rounded-xl shadow-sm border border-primary-100 flex items-center justify-between text-primary-700 hover:bg-primary-50 transition-colors"

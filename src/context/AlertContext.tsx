@@ -59,48 +59,53 @@ export function AlertProvider({ children }: { children: ReactNode }) {
 
     const loadAlerts = async () => {
         try {
-            const data = await alertService.getAlerts();
+            // Fetch alerts with related counts/data in ONE SINGLE request using join embedding
+            const { data, error } = await supabase
+                .from('alerts')
+                .select(`
+                    *,
+                    confirmations:alert_confirmations(count),
+                    reports:alert_reports(count),
+                    comments:alert_comments(
+                        id,
+                        content,
+                        author_pseudonym,
+                        created_at
+                    )
+                `)
+                .order('created_at', { ascending: false });
 
-            // Map the Supabase data to our frontend Alert type
-            // Note: In a real app we might want to fetch confirmation counts and comments together
-            const mappedAlerts: Alert[] = await Promise.all(data.map(async (alert: any) => {
-                const [confirmations, reports, comments] = await Promise.all([
-                    alertService.getAlertConfirmations(alert.id),
-                    alertService.getAlertReports(alert.id),
-                    alertService.getComments(alert.id)
-                ]);
+            if (error) throw error;
 
-                return {
-                    id: alert.id,
-                    user_id: alert.user_id,
-                    type: alert.type as any,
-                    latitude: alert.latitude,
-                    longitude: alert.longitude,
-                    description: alert.description,
-                    neighborhood: alert.neighborhood,
-                    city: alert.city,
-                    state: alert.state,
-                    street: alert.street,
-                    photo_url: alert.photo_url,
-                    created_at: alert.created_at,
-                    author_pseudonym: alert.author_pseudonym,
-                    confirmations,
-                    reports,
-                    police_report: alert.police_report,
-                    reference_point: alert.reference_point,
-                    status: (alert.status || 'active') as any,
-                    comments: comments.map((c: any) => ({
-                        id: c.id,
-                        text: c.content,
-                        author_pseudonym: c.author_pseudonym,
-                        created_at: c.created_at
-                    }))
-                };
+            const mappedAlerts: Alert[] = data.map((alert: any) => ({
+                id: alert.id,
+                user_id: alert.user_id,
+                type: alert.type as any,
+                latitude: alert.latitude,
+                longitude: alert.longitude,
+                description: alert.description,
+                neighborhood: alert.neighborhood,
+                city: alert.city,
+                state: alert.state,
+                street: alert.street,
+                photo_url: alert.photo_url,
+                created_at: alert.created_at,
+                author_pseudonym: alert.author_pseudonym,
+                confirmations: alert.confirmations[0]?.count || 0,
+                reports: alert.reports[0]?.count || 0,
+                police_report: alert.police_report,
+                reference_point: alert.reference_point,
+                status: (alert.status || 'active') as any,
+                comments: (alert.comments || []).map((c: any) => ({
+                    id: c.id,
+                    text: c.content,
+                    author_pseudonym: c.author_pseudonym,
+                    created_at: c.created_at
+                }))
             }));
 
             setAlerts(mappedAlerts);
         } catch (error: any) {
-            //console.error('Error loading alerts:', error);
             logError({
                 message: error.message,
                 context: 'AlertContext.loadAlerts',

@@ -23,8 +23,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [loading, setLoading] = useState(true);
 
     const refreshProfile = useCallback(async () => {
-        const { data: currentSession } = await supabase.auth.getSession();
-        const userId = currentSession?.session?.user?.id;
+        const { data: { session: currentSession } } = await supabase.auth.getSession();
+        const userId = currentSession?.user?.id;
 
         if (!userId) {
             setProfile(null);
@@ -38,42 +38,56 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 .eq('id', userId)
                 .single();
 
-            if (error) throw error;
-            setProfile(data);
+            if (error) {
+                if (error.code === 'PGRST116') {
+                    // Item not found - profile might have been deleted manually
+                    console.warn('Profile not found for authenticated user');
+                    setProfile(null);
+                } else {
+                    throw error;
+                }
+            } else {
+                setProfile(data);
+            }
         } catch (error: any) {
-            //console.error('Error refreshing profile:', error);  
+            console.log('Error refreshing profile:', error);
+            setProfile(null);
             logError({
                 message: error.message,
                 context: 'AuthContext.refreshProfile',
-                metadata: { email: user?.email || 'anonymous' }
+                metadata: { userId }
             });
         }
-    }, []);
+    }, [user?.id]);
 
     useEffect(() => {
         // Initial setup
         const initAuth = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            setSession(session);
-            setUser(session?.user ?? null);
+            try {
+                const { data: { session: initialSession } } = await supabase.auth.getSession();
+                setSession(initialSession);
+                setUser(initialSession?.user ?? null);
 
-            if (session?.user) {
-                await refreshProfile();
+                if (initialSession?.user) {
+                    // Start profile fetch but don't block auth initialization
+                    refreshProfile();
+                }
+            } catch (err) {
+                console.error('Auth initialization error:', err);
+            } finally {
+                setLoading(false);
             }
-
-            setLoading(false);
         };
 
         initAuth();
 
         // Listen for auth changes
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-            // Avoid duplicate state updates if session is same
-            setSession(session);
-            setUser(session?.user ?? null);
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, currentSession) => {
+            setSession(currentSession);
+            setUser(currentSession?.user ?? null);
 
-            if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || (event === 'INITIAL_SESSION' && session)) {
-                await refreshProfile();
+            if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || (event === 'INITIAL_SESSION' && currentSession)) {
+                refreshProfile();
             } else if (event === 'SIGNED_OUT') {
                 setProfile(null);
             }
@@ -81,8 +95,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setLoading(false);
         });
 
-        return () => subscription.unsubscribe();
-    }, [refreshProfile]);
+        return () => {
+            subscription.unsubscribe();
+        };
+    }, []); // Empty dependency array to run only once
 
     const signUp = async (
         email: string,
@@ -120,9 +136,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     const signOut = async () => {
-        const { error } = await supabase.auth.signOut();
-        if (error) throw error;
-        setProfile(null);
+        try {
+            await supabase.auth.signOut();
+        } catch (error: any) {
+            console.log('Supabase signOut error:', error);
+        } finally {
+            // Always clear local state
+            setUser(null);
+            setSession(null);
+            setProfile(null);
+        }
     };
 
     return (

@@ -54,8 +54,20 @@ export function LocationProvider({ children }: { children: ReactNode }) {
         }
 
         setGpsLoading(true);
+
+        // Safety timeout to prevent the app from being stuck in "loading"
+        // if the browser doesn't call success or error for geolocation
+        const safetyTimeout = setTimeout(() => {
+            if (!initialGpsAttemptDone) {
+                console.warn('GPS attempt safety timeout reached');
+                setGpsLoading(false);
+                setInitialGpsAttemptDone(true);
+            }
+        }, 15000);
+
         navigator.geolocation.getCurrentPosition(
             async (position) => {
+                clearTimeout(safetyTimeout);
                 try {
                     const { latitude, longitude } = position.coords;
                     setGpsCoords([latitude, longitude]);
@@ -77,6 +89,7 @@ export function LocationProvider({ children }: { children: ReactNode }) {
                 }
             },
             (error) => {
+                clearTimeout(safetyTimeout);
                 //console.error('GPS Tracking error:', error);
 
                 // User-friendly notification

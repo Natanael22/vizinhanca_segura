@@ -1,10 +1,12 @@
 import { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AlertProvider } from './context/AlertContext';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { LocationProvider } from './context/LocationContext';
 import { NotificationProvider } from './context/NotificationContext';
 import MobileLayout from './layout/MobileLayout';
+
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 // Lazy load components
 const Welcome = lazy(() => import('./pages/Welcome'));
@@ -29,6 +31,32 @@ const PageLoader = () => (
   </div>
 );
 
+// Protected Route Component
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user, loading } = useAuth();
+
+  if (loading) return <PageLoader />;
+
+  if (!user) {
+    return <Navigate to="/" replace />;
+  }
+
+  return <>{children}</>;
+};
+
+// Public Route Component (redirects to home if already logged in)
+const PublicRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user, loading } = useAuth();
+
+  if (loading) return <PageLoader />;
+
+  if (user) {
+    return <Navigate to="/home" replace />;
+  }
+
+  return <>{children}</>;
+};
+
 function App() {
   return (
     <NotificationProvider>
@@ -36,27 +64,33 @@ function App() {
         <LocationProvider>
           <AlertProvider>
             <Router>
-              <Suspense fallback={<PageLoader />}>
-                <Routes>
-                  <Route element={<MobileLayout />}>
-                    <Route path="/" element={<Welcome />} />
-                    <Route path="/register" element={<Register />} />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/onboarding" element={<Onboarding />} />
-                    <Route path="/home" element={<Home />} />
-                    <Route path="/feed" element={<Feed />} />
-                    <Route path="/emergency" element={<Emergency />} />
-                    <Route path="/community" element={<Community />} />
-                    <Route path="/topic/:id" element={<TopicDetail />} />
-                    <Route path="/profile" element={<Profile />} />
-                    <Route path="/my-account" element={<MyAccount />} />
-                    <Route path="/support" element={<Support />} />
-                    <Route path="/alert/:id" element={<AlertDetail />} />
-                    <Route path="/create-alert" element={<CreateAlert />} />
-                    <Route path="*" element={<Navigate to="/" replace />} />
-                  </Route>
-                </Routes>
-              </Suspense>
+              <ErrorBoundary>
+                <Suspense fallback={<PageLoader />}>
+                  <Routes>
+                    <Route element={<MobileLayout />}>
+                      {/* Public Routes */}
+                      <Route path="/" element={<PublicRoute><Welcome /></PublicRoute>} />
+                      <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
+                      <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+                      <Route path="/onboarding" element={<Onboarding />} />
+
+                      {/* Private Routes */}
+                      <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+                      <Route path="/feed" element={<ProtectedRoute><Feed /></ProtectedRoute>} />
+                      <Route path="/emergency" element={<ProtectedRoute><Emergency /></ProtectedRoute>} />
+                      <Route path="/community" element={<ProtectedRoute><Community /></ProtectedRoute>} />
+                      <Route path="/topic/:id" element={<ProtectedRoute><TopicDetail /></ProtectedRoute>} />
+                      <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+                      <Route path="/my-account" element={<ProtectedRoute><MyAccount /></ProtectedRoute>} />
+                      <Route path="/support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
+                      <Route path="/alert/:id" element={<ProtectedRoute><AlertDetail /></ProtectedRoute>} />
+                      <Route path="/create-alert" element={<ProtectedRoute><CreateAlert /></ProtectedRoute>} />
+
+                      <Route path="*" element={<Navigate to="/" replace />} />
+                    </Route>
+                  </Routes>
+                </Suspense>
+              </ErrorBoundary>
             </Router>
           </AlertProvider>
         </LocationProvider>

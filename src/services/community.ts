@@ -1,18 +1,23 @@
 import { supabase, type Topic, type Reply } from '../lib/supabase';
 
 export async function getTopics(neighborhood?: string): Promise<Topic[]> {
-    let query = supabase
-        .from('topics')
-        .select('*');
+    try {
+        let query = supabase
+            .from('topics')
+            .select('*');
 
-    if (neighborhood) {
-        query = query.eq('neighborhood', neighborhood);
+        if (neighborhood) {
+            query = query.eq('neighborhood', neighborhood);
+        }
+
+        const { data, error } = await query.order('created_at', { ascending: false });
+
+        if (error) throw error;
+        return data || [];
+    } catch (err) {
+        console.error('Error in getTopics:', err);
+        throw err;
     }
-
-    const { data, error } = await query.order('created_at', { ascending: false });
-
-    if (error) throw error;
-    return data || [];
 }
 
 export async function getTopicById(id: string): Promise<Topic> {
