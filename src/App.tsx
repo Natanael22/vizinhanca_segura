@@ -15,6 +15,7 @@ import { AppTour } from './components/Tour/AppTour';
 const Welcome = lazy(() => import('./pages/Welcome'));
 const Login = lazy(() => import('./pages/Login'));
 const Register = lazy(() => import('./pages/Register'));
+const Onboarding = lazy(() => import('./pages/Onboarding'));
 const Home = lazy(() => import('./pages/Home'));
 const CreateAlert = lazy(() => import('./pages/CreateAlert'));
 const Feed = lazy(() => import('./pages/Feed'));
