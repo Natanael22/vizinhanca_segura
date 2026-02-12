@@ -1,10 +1,11 @@
-export type AlertType = 'emergency' | 'theft' | 'suspicious' | 'noise' | 'other';
+export type AlertType = 'emergency' | 'theft' | 'suspicious' | 'noise' | 'mistreatment' | 'other';
 
 export const ALERT_TYPES: Record<AlertType, { label: string; color: string; bg: string }> = {
     emergency: { label: 'Emergência', color: '#ef4444', bg: 'bg-red-500' }, // Red-500
     theft: { label: 'Roubo/Furto', color: '#f97316', bg: 'bg-orange-500' }, // Orange-500
     suspicious: { label: 'Suspeita', color: '#eab308', bg: 'bg-yellow-500' }, // Yellow-500
     noise: { label: 'Barulho', color: '#3b82f6', bg: 'bg-blue-500' }, // Blue-500
+    mistreatment: { label: 'Maus-tratos', color: '#9333ea', bg: 'bg-purple-600' }, // Purple-600
     other: { label: 'Outros', color: '#22c55e', bg: 'bg-green-500' }, // Green-500
 };
 

@@ -18,7 +18,7 @@ export default function CreateAlert() {
     const { user } = useAuth();
     const { gpsCoords, gpsLocation } = useLocation();
     const [description, setDescription] = useState('');
-    const [selectedType, setSelectedType] = useState<string | null>(null);
+    const [selectedType, setSelectedType] = useState<AlertType | null>(null);
     const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [error, setError] = useState('');
@@ -131,10 +131,10 @@ export default function CreateAlert() {
             //console.log('Creating alert with address:', addressData);
 
             await addAlert({
-                type: selectedType === 'maltratos' ? 'other' : (selectedType as AlertType),
+                type: selectedType,
                 latitude: gpsCoords[0],
                 longitude: gpsCoords[1],
-                description: selectedType === 'maltratos' ? `[Maus-tratos] ${description}` : description,
+                description,
                 author_pseudonym: profile?.pseudonym || 'Anônimo',
                 photo_url: photoUrl,
                 police_report: (selectedType === 'emergency' || selectedType === 'theft') ? policeReport : undefined,
@@ -185,38 +185,24 @@ export default function CreateAlert() {
                     <div className="space-y-2">
                         <label className="text-sm font-medium text-primary-700">O que está acontecendo?</label>
                         <div className="grid grid-cols-2 gap-3">
-                            {[
-                                ...Object.entries(ALERT_TYPES).map(([type, config]) => ({
-                                    id: type,
-                                    label: config.label,
-                                    color: config.color,
-                                    bg: config.bg,
-                                    icon: null
-                                })),
-                                {
-                                    id: 'maltratos',
-                                    label: 'Maus-tratos',
-                                    color: '#9333ea',
-                                    bg: 'bg-purple-600',
-                                    icon: Dog
-                                }
-                            ].map((option) => (
+                            {Object.entries(ALERT_TYPES).map(([type, config]) => (
                                 <button
-                                    key={option.id}
+                                    key={type}
                                     type="button"
-                                    onClick={() => setSelectedType(option.id)}
+                                    onClick={() => setSelectedType(type as AlertType)}
                                     className={clsx(
                                         "p-4 rounded-xl border text-left transition-all",
-                                        selectedType === option.id
+                                        selectedType === type
                                             ? `bg-primary-50`
                                             : "border-primary-200 hover:border-primary-300"
                                     )}
-                                    style={selectedType === option.id ? { borderColor: option.color, borderWidth: '2px' } : {}}
+                                    style={selectedType === type ? { borderColor: config.color, borderWidth: '2px' } : {}}
                                 >
-                                    <div className={`w-8 h-8 rounded-full ${option.bg} mb-2 flex items-center justify-center text-white text-xs`}>
-                                        {option.icon ? <option.icon size={16} /> : null}
+                                    <div className={`w-8 h-8 rounded-full ${config.bg} mb-2 flex items-center justify-center text-white text-xs`}>
+                                        {/* Icon placeholder or simple dot */}
+                                        {type === 'mistreatment' && <Dog size={16} />}
                                     </div>
-                                    <span className="font-semibold text-primary-900 block">{option.label}</span>
+                                    <span className="font-semibold text-primary-900 block">{config.label}</span>
                                 </button>
                             ))}
                         </div>

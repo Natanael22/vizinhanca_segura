@@ -2,7 +2,7 @@ import { divIcon } from 'leaflet';
 import { Marker, Popup } from 'react-leaflet';
 import { ALERT_TYPES, type Alert } from '../../types/alert';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { CheckCircle, AlertOctagon, Volume2, Eye, HelpCircle, ChevronRight } from 'lucide-react';
+import { CheckCircle, AlertOctagon, Volume2, Eye, HelpCircle, ChevronRight, Dog } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface AlertMarkerProps {
@@ -17,6 +17,7 @@ const getIcon = (type: string) => {
         case 'theft': return <AlertOctagon size={size} color={color} />;
         case 'suspicious': return <Eye size={size} color={color} />;
         case 'noise': return <Volume2 size={size} color={color} />;
+        case 'mistreatment': return <Dog size={size} color={color} />;
         default: return <HelpCircle size={size} color={color} />;
     }
 }
