@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, AlertTriangle, Camera, X } from 'lucide-react';
+import { ArrowLeft, AlertTriangle, Camera, X, Dog } from 'lucide-react';
 import { Button } from '../components/Button';
 import { useAlerts } from '../context/AlertContext';
 import { useAuth } from '../context/AuthContext';
@@ -18,7 +18,7 @@ export default function CreateAlert() {
     const { user } = useAuth();
     const { gpsCoords, gpsLocation } = useLocation();
     const [description, setDescription] = useState('');
-    const [selectedType, setSelectedType] = useState<AlertType | null>(null);
+    const [selectedType, setSelectedType] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [error, setError] = useState('');
@@ -131,10 +131,10 @@ export default function CreateAlert() {
             //console.log('Creating alert with address:', addressData);
 
             await addAlert({
-                type: selectedType,
+                type: selectedType === 'maltratos' ? 'other' : (selectedType as AlertType),
                 latitude: gpsCoords[0],
                 longitude: gpsCoords[1],
-                description,
+                description: selectedType === 'maltratos' ? `[Maus-tratos] ${description}` : description,
                 author_pseudonym: profile?.pseudonym || 'Anônimo',
                 photo_url: photoUrl,
                 police_report: (selectedType === 'emergency' || selectedType === 'theft') ? policeReport : undefined,
@@ -185,23 +185,38 @@ export default function CreateAlert() {
                     <div className="space-y-2">
                         <label className="text-sm font-medium text-primary-700">O que está acontecendo?</label>
                         <div className="grid grid-cols-2 gap-3">
-                            {(Object.entries(ALERT_TYPES) as [AlertType, typeof ALERT_TYPES['emergency']][]).map(([type, config]) => (
+                            {[
+                                ...Object.entries(ALERT_TYPES).map(([type, config]) => ({
+                                    id: type,
+                                    label: config.label,
+                                    color: config.color,
+                                    bg: config.bg,
+                                    icon: null
+                                })),
+                                {
+                                    id: 'maltratos',
+                                    label: 'Maus-tratos',
+                                    color: '#9333ea',
+                                    bg: 'bg-purple-600',
+                                    icon: Dog
+                                }
+                            ].map((option) => (
                                 <button
-                                    key={type}
+                                    key={option.id}
                                     type="button"
-                                    onClick={() => setSelectedType(type)}
+                                    onClick={() => setSelectedType(option.id)}
                                     className={clsx(
                                         "p-4 rounded-xl border text-left transition-all",
-                                        selectedType === type
-                                            ? `border-${config.color} ring-1 ring-${config.color} bg-primary-50` // Using style directly might be better due to tailwind dynamic class limits
+                                        selectedType === option.id
+                                            ? `bg-primary-50`
                                             : "border-primary-200 hover:border-primary-300"
                                     )}
-                                    style={selectedType === type ? { borderColor: config.color } : {}}
+                                    style={selectedType === option.id ? { borderColor: option.color, borderWidth: '2px' } : {}}
                                 >
-                                    <div className={`w-8 h-8 rounded-full ${config.bg} mb-2 flex items-center justify-center text-white text-xs`}>
-                                        {/* Icon placeholder or simple dot */}
+                                    <div className={`w-8 h-8 rounded-full ${option.bg} mb-2 flex items-center justify-center text-white text-xs`}>
+                                        {option.icon ? <option.icon size={16} /> : null}
                                     </div>
-                                    <span className="font-semibold text-primary-900 block">{config.label}</span>
+                                    <span className="font-semibold text-primary-900 block">{option.label}</span>
                                 </button>
                             ))}
                         </div>
