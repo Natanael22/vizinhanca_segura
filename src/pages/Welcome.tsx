@@ -1,11 +1,11 @@
-import { ShieldCheck } from 'lucide-react';
+import communityImg from '../assets/community.png';
 import { Link } from 'react-router-dom';
 
 export default function Welcome() {
     return (
         <div className="flex flex-col items-center justify-center p-8 flex-1 text-center space-y-10 bg-gradient-to-br from-primary-900 to-primary-800 text-white">
             <div className="p-6 bg-primary-800/50 rounded-full border border-primary-700 shadow-xl backdrop-blur-sm">
-                <ShieldCheck size={80} className="text-accent-400" />
+                <img src={communityImg} alt="Vizinhança Segura" className="w-40 h-40 object-contain" />
             </div>
 
             <div className="space-y-4 max-w-xs">
