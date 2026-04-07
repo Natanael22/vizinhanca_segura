@@ -58,6 +58,18 @@ export function BottomNav() {
                 <span className="text-xs font-medium mt-1">Chat</span>
             </NavLink>
 
+            {/*<NavLink
+                id="tour-partners"
+                to="/partners"
+                className={({ isActive }) => clsx(
+                    "flex flex-col items-center justify-center p-2 rounded-lg w-20 transition-colors",
+                    isActive ? "text-accent-600 bg-accent-50" : "text-primary-400 hover:text-primary-600"
+                )}
+            >
+                <Handshake size={24} />
+                <span className="text-xs font-medium mt-1">Parceiros</span>
+            </NavLink>*/}
+
             <NavLink
                 id="tour-profile"
                 to="/profile"

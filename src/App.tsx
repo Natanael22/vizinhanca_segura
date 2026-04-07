@@ -26,6 +26,7 @@ const Profile = lazy(() => import('./pages/Profile'));
 const MyAccount = lazy(() => import('./pages/MyAccount'));
 const Support = lazy(() => import('./pages/Support'));
 const TopicDetail = lazy(() => import('./pages/TopicDetail'));
+//const Partners = lazy(() => import('./pages/Partners'));
 
 // Loading component
 
@@ -79,6 +80,7 @@ function App() {
                         <Route path="/emergency" element={<ProtectedRoute><Emergency /></ProtectedRoute>} />
                         <Route path="/community" element={<ProtectedRoute><Community /></ProtectedRoute>} />
                         <Route path="/topic/:id" element={<ProtectedRoute><TopicDetail /></ProtectedRoute>} />
+                        {/*<Route path="/partners" element={<ProtectedRoute><Partners /></ProtectedRoute>} />*/}
                         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
                         <Route path="/my-account" element={<ProtectedRoute><MyAccount /></ProtectedRoute>} />
                         <Route path="/support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
