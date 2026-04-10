@@ -46,10 +46,16 @@ export default function Home() {
                     content: 'Em caso de emergência real, ligue para as autoridades competentes.',
                     position: 'top'
                 },
-                {
+                /*{
                     targetId: 'tour-community',
                     title: 'Conversa no Bairro',
                     content: 'Acesse o fórum da comunidade para discutir melhorias e segurança com seus vizinhos.',
+                    position: 'top'
+                },*/
+                {
+                    targetId: 'tour-partners',
+                    title: 'Parceiros',
+                    content: 'Acesse os parceiros cadastrados na plataforma Kesher.app.',
                     position: 'top'
                 },
                 {

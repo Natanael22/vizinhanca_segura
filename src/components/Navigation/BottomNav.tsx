@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { Map, List, MessageSquare, User } from 'lucide-react';
+import { Map, List, User, Handshake } from 'lucide-react';
 import { clsx } from 'clsx';
 
 export function BottomNav() {
@@ -46,7 +46,7 @@ export function BottomNav() {
                 <span className="text-[10px] font-bold mt-0.5 text-red-600">SOS</span>
             </NavLink>
 
-            <NavLink
+            {/*<NavLink
                 id="tour-community"
                 to="/community"
                 className={({ isActive }) => clsx(
@@ -56,9 +56,9 @@ export function BottomNav() {
             >
                 <MessageSquare size={24} />
                 <span className="text-xs font-medium mt-1">Chat</span>
-            </NavLink>
+            </NavLink>*/}
 
-            {/*<NavLink
+            {<NavLink
                 id="tour-partners"
                 to="/partners"
                 className={({ isActive }) => clsx(
@@ -68,7 +68,7 @@ export function BottomNav() {
             >
                 <Handshake size={24} />
                 <span className="text-xs font-medium mt-1">Parceiros</span>
-            </NavLink>*/}
+            </NavLink>}
 
             <NavLink
                 id="tour-profile"

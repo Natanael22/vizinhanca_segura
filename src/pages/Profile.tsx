@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 
 import { BottomNav } from '../components/Navigation/BottomNav';
-import { User, Shield, CheckCircle, AlertTriangle, Settings, MapPin, HeartPlus } from 'lucide-react';
+import { User, Shield, CheckCircle, AlertTriangle, Settings, MapPin, HeartPlus, UserPlus } from 'lucide-react';
 import { Button } from '../components/Button';
 import { useAlerts } from '../context/AlertContext';
 import { logError } from '../services/logger';
@@ -49,17 +49,21 @@ export default function Profile() {
     if (reputation > 1500) trustLevel = 'Guardião do Bairro';
 
     return (
-        <div className="flex flex-col h-full bg-primary-50 relative">
-            <header className="bg-white p-6 pb-8 rounded-b-[2.5rem] shadow-sm relative overflow-hidden sticky top-0 z-20">
-                <div className="absolute top-0 right-0 p-8 opacity-5">
+        <div className="flex flex-col h-full bg-primary-50">
+            <header className="p-4 bg-white border-b border-primary-200 sticky top-0 z-10 shadow-sm flex items-center gap-2">
+                {/*<div className="absolute top-0 right-0 p-8 opacity-5">
                     <Shield size={180} />
-                </div>
+                </div>*/}
 
-                <div className="relative z-10 flex flex-col items-center">
+                {/*<div className="relative z-10 flex flex-col items-center">*/}
+                <div>
                     <div className="w-24 h-24 bg-primary-100 rounded-full flex items-center justify-center text-primary-600 mb-4 border-4 border-white shadow-md">
                         <User size={48} />
                     </div>
 
+
+                </div>
+                <div>
                     <h1 className="text-xl font-bold text-primary-900">{profile?.pseudonym || 'Carregando...'}</h1>
                     <div className="flex items-center gap-1 text-primary-500 text-sm mt-1">
                         <MapPin size={14} />
@@ -116,6 +120,16 @@ export default function Profile() {
                             <div className="absolute right-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow-sm" />
                         </div>
                     </button>*/}
+                    <button
+                        onClick={() => window.open('https://sistema.kesherapp.com.br/vizinhancasegura/novousuario', '_blank')}
+                        className="w-full bg-white p-4 rounded-xl shadow-sm border border-primary-100 flex items-center justify-between text-primary-700 hover:bg-primary-50 transition-colors"
+                    >
+                        <div className="flex items-center gap-3">
+                            <UserPlus size={20} />
+                            <span>Seja um parceiro <b>Kesher</b></span>
+                        </div>
+                    </button>
+
 
                     <button
                         onClick={() => navigate('/my-account', { state: { profile } })}
