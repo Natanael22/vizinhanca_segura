@@ -119,6 +119,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     neighborhood,
                     city,
                     state,
+                    project: 'VS',
                 },
             },
         });
