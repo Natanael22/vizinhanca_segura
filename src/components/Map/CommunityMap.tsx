@@ -69,7 +69,7 @@ export default function CommunityMap() {
             >
                 <TileLayer
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                    url={`https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?key=${import.meta.env.CARTO_KEY}`}
+                    url={`https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?key=cb1_33rw_1_232bd4808ca1a379d13d5d47`}
                 />
 
                 {/* Alerts Markers */}
