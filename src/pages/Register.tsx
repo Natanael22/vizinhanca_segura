@@ -4,14 +4,10 @@ import { Button } from '../components/Button';
 import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, RefreshCw, ShieldCheck, Loader2 } from 'lucide-react';
 import { generateRandomPseudonym } from '../utils/pseudonym';
-import { supabase } from '../lib/supabase';
-import { useNotification } from '../context/NotificationContext';
-import { translateError } from '../utils/errors';
 import { logError } from '../services/logger';
 
 export default function Register() {
     const navigate = useNavigate();
-    const { showNotification } = useNotification();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [formData, setFormData] = useState({
