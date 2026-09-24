@@ -6,7 +6,7 @@ import { fetchAddressByCEP } from '../services/cep';
 import { fetchAddressByCoords } from '../services/geocoding';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { sendOTP } from '../services/whatsapp';
+import { sendOTP, verifyOTP } from '../services/whatsapp';
 import { logError } from '../services/logger';
 import { useNotification } from '../context/NotificationContext';
 import { translateError } from '../utils/errors';
@@ -37,7 +37,6 @@ export default function Onboarding() {
     const [acceptedTerms, setAcceptedTerms] = useState(false);
 
     // WhatsApp OTP State
-    const [verificationCode, setVerificationCode] = useState('');
     const [userCode, setUserCode] = useState('');
     const [isSendingCode, setIsSendingCode] = useState(false);
     const [isVerifyingCode, setIsVerifyingCode] = useState(false);
@@ -88,32 +87,29 @@ export default function Onboarding() {
         setIsSendingCode(true);
         setError('');
 
-        const code = Math.floor(100000 + Math.random() * 900000).toString();
-        setVerificationCode(code);
-
         try {
-            await sendOTP(registrationData.phone, code);
+            await sendOTP(registrationData.phone);
         } catch (err: any) {
             setError(err.message || 'Erro ao enviar código. Verifique se o número está correto.');
-            logError({
-                message: err.message,
-                context: 'Onboarding.sendOTP',
-                metadata: { phone: registrationData.phone }
-            });
         } finally {
             setIsSendingCode(false);
         }
     };
 
-    const handleVerifyCode = () => {
+    const handleVerifyCode = async () => {
+        if (!registrationData?.phone) return;
+        
         setIsVerifyingCode(true);
-        if (userCode === verificationCode) {
+        setError('');
+        
+        try {
+            await verifyOTP(registrationData.phone, userCode);
             setStep(3);
-            setError('');
-        } else {
-            setError('Código incorreto. Tente novamente.');
+        } catch (err: any) {
+            setError(err.message || 'Código incorreto ou expirado. Tente novamente.');
+        } finally {
+            setIsVerifyingCode(false);
         }
-        setIsVerifyingCode(false);
     };
 
     const handleCepSearch = async () => {
