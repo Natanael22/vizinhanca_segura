@@ -78,7 +78,7 @@ export default function Home() {
             document.body.style.width = '';
             document.body.style.height = '';
         };
-    }, []);
+    }, [authLoading, startTour]);
 
     const isUsingGps = !!gpsLocation;
     const locationDisplay = gpsLocation

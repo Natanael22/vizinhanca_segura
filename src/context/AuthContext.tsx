@@ -98,7 +98,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return () => {
             subscription.unsubscribe();
         };
-    }, []); // Empty dependency array to run only once
+    }, [refreshProfile]);
 
     const signUp = async (
         email: string,

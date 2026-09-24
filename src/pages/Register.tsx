@@ -42,26 +42,6 @@ export default function Register() {
 
         setLoading(true);
         try {
-            // Check if email or phone already exists using a secure RPC function
-            // to bypass RLS safely for anonymous users
-            const { data: userExists, error: rpcError } = await supabase
-                .rpc('check_user_exists', {
-                    email_to_check: formData.email
-                });
-
-            if (rpcError) throw rpcError;
-
-            if (userExists) {
-                const { title, message } = translateError('User already registered');
-                showNotification({
-                    title,
-                    message,
-                    type: 'error',
-                    onClose: () => navigate('/login')
-                });
-                return;
-            }
-
             // If everything is fine, proceed to onboarding
             navigate('/onboarding', { state: { registrationData: formData } });
         } catch (err: any) {

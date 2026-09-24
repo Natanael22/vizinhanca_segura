@@ -23,7 +23,7 @@ export type Profile = {
     updated_at: string;
 };
 
-export type Alert = {
+export type AlertRow = {
     id: string;
     user_id: string;
     type: string;

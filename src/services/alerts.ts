@@ -1,6 +1,6 @@
-import { supabase, type Alert } from '../lib/supabase';
+import { supabase, type AlertRow } from '../lib/supabase';
 
-export async function getAlerts(): Promise<Alert[]> {
+export async function getAlerts(): Promise<AlertRow[]> {
     const { data, error } = await supabase
         .from('alerts')
         .select('*')
@@ -10,7 +10,7 @@ export async function getAlerts(): Promise<Alert[]> {
     return data || [];
 }
 
-export async function getAlertById(id: string): Promise<Alert | null> {
+export async function getAlertById(id: string): Promise<AlertRow | null> {
     const { data, error } = await supabase
         .from('alerts')
         .select('*')
@@ -34,7 +34,7 @@ export async function createAlert(alert: {
     author_pseudonym: string;
     police_report?: string;
     reference_point?: string;
-}): Promise<Alert> {
+}): Promise<AlertRow> {
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) throw new Error('Not authenticated');

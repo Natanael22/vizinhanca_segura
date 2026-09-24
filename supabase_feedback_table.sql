@@ -16,4 +16,4 @@ CREATE POLICY "Anyone can create feedback"
 
 CREATE POLICY "Only admins can view feedback"
     ON feedbacks FOR SELECT
-    USING (auth.jwt() ->> 'email' = 'your-admin-email@example.com'); -- Optional: adjust as needed
+    USING (auth.jwt() ->> 'email' = 'natanaelcorreia1@gmail.com'); -- Optional: adjust as needed
