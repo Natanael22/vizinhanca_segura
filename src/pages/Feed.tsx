@@ -7,6 +7,32 @@ import { MapPin, Navigation, User } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useAuth } from '../context/AuthContext';
 
+interface FilterButtonProps {
+    active: boolean;
+    onClick: () => void;
+    icon: React.ElementType;
+    label: string;
+    sublabel?: string;
+}
+
+const FilterButton = ({ active, onClick, icon: Icon, label, sublabel }: FilterButtonProps) => (
+    <button
+        onClick={onClick}
+        className={clsx(
+            "flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-full border transition-all text-sm font-medium",
+            active
+                ? "bg-accent-500 border-accent-500 text-white shadow-md shadow-accent-100"
+                : "bg-white border-primary-100 text-primary-600 hover:border-primary-200"
+        )}
+    >
+        <Icon size={16} className={active ? "text-white" : "text-accent-500"} />
+        <div className="flex flex-col items-start leading-tight">
+            <span>{label}</span>
+            {sublabel && <span className={clsx("text-[10px]", active ? "text-white/80" : "text-primary-400")}>{sublabel}</span>}
+        </div>
+    </button>
+);
+
 export default function Feed() {
     const { user } = useAuth();
     const { alerts } = useAlerts();
@@ -25,24 +51,6 @@ export default function Feed() {
     // Sort by date desc
     const sortedAlerts = [...filteredAlerts].sort((a, b) =>
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-    );
-
-    const FilterButton = ({ active, onClick, icon: Icon, label, sublabel }: any) => (
-        <button
-            onClick={onClick}
-            className={clsx(
-                "flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-full border transition-all text-sm font-medium",
-                active
-                    ? "bg-accent-500 border-accent-500 text-white shadow-md shadow-accent-100"
-                    : "bg-white border-primary-100 text-primary-600 hover:border-primary-200"
-            )}
-        >
-            <Icon size={16} className={active ? "text-white" : "text-accent-500"} />
-            <div className="flex flex-col items-start leading-tight">
-                <span>{label}</span>
-                {sublabel && <span className={clsx("text-[10px]", active ? "text-white/80" : "text-primary-400")}>{sublabel}</span>}
-            </div>
-        </button>
     );
 
     return (

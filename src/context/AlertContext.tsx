@@ -137,7 +137,7 @@ export function AlertProvider({ children }: { children: ReactNode }) {
             //console.error('Error creating alert:', error);
             logError({
                 message: error.message,
-                context: 'AlertContext.loadAlerts',
+                context: 'AlertContext.addAlert',
                 metadata: { email: user?.email || 'anonymous' }
             });
             throw error;
@@ -155,7 +155,7 @@ export function AlertProvider({ children }: { children: ReactNode }) {
             //console.error('Error confirming alert:', error);
             logError({
                 message: error.message,
-                context: 'AlertContext.loadAlerts',
+                context: 'AlertContext.confirmAlert',
                 metadata: { email: user?.email || 'anonymous' }
             });
             throw error;
@@ -168,18 +168,12 @@ export function AlertProvider({ children }: { children: ReactNode }) {
             // Optimistic update
             setAlerts(prev => prev.map(alert =>
                 alert.id === id ? { ...alert, reports: alert.reports + 1 } : alert
-                //const newReports = alert.reports + 1;
-                //const newStatus = newReports >= 10 ? 'hidden' : alert.status;
-                //return { ...alert, reports: newReports, status: newStatus };
-
-                //return alert;
-                //}
             ));
         } catch (error: any) {
             //console.error('Error reporting alert:', error);
             logError({
                 message: error.message,
-                context: 'AlertContext.loadAlerts',
+                context: 'AlertContext.reportAlert',
                 metadata: { email: user?.email || 'anonymous' }
             });
             throw error;
@@ -196,7 +190,7 @@ export function AlertProvider({ children }: { children: ReactNode }) {
             //console.error('Error resolving alert:', error);
             logError({
                 message: error.message,
-                context: 'AlertContext.loadAlerts',
+                context: 'AlertContext.resolveAlert',
                 metadata: { email: user?.email || 'anonymous' }
             });
             throw error;
@@ -221,7 +215,7 @@ export function AlertProvider({ children }: { children: ReactNode }) {
             //console.error('Error adding comment:', error);
             logError({
                 message: error.message,
-                context: 'AlertContext.loadAlerts',
+                context: 'AlertContext.addComment',
                 metadata: { email: user?.email || 'anonymous' }
             });
             throw error;

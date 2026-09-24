@@ -27,6 +27,13 @@ export default function CreateAlert() {
     const [policeReport, setPoliceReport] = useState('');
     const [referencePoint, setReferencePoint] = useState('');
 
+    // Cleanup object URL to prevent memory leak
+    useEffect(() => {
+        return () => {
+            if (photoPreview) URL.revokeObjectURL(photoPreview);
+        };
+    }, [photoPreview]);
+
     // Location verification states
     const [manualNeighborhood, setManualNeighborhood] = useState('');
     const [manualStreet, setManualStreet] = useState('');
@@ -302,6 +309,7 @@ export default function CreateAlert() {
                                 <button
                                     type="button"
                                     onClick={() => {
+                                        if (photoPreview) URL.revokeObjectURL(photoPreview);
                                         setPhoto(null);
                                         setPhotoPreview(null);
                                     }}

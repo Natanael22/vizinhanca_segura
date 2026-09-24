@@ -21,7 +21,6 @@ const CreateAlert = lazy(() => import('./pages/CreateAlert'));
 const Feed = lazy(() => import('./pages/Feed'));
 const AlertDetail = lazy(() => import('./pages/AlertDetail'));
 const Emergency = lazy(() => import('./pages/Emergency'));
-//const Community = lazy(() => import('./pages/Community'));
 const Profile = lazy(() => import('./pages/Profile'));
 const MyAccount = lazy(() => import('./pages/MyAccount'));
 const Support = lazy(() => import('./pages/Support'));
@@ -72,13 +71,12 @@ function App() {
                         <Route path="/" element={<PublicRoute><Welcome /></PublicRoute>} />
                         <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
                         <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
-                        <Route path="/onboarding" element={<Onboarding />} />
+                        <Route path="/onboarding" element={<PublicRoute><Onboarding /></PublicRoute>} />
 
                         {/* Private Routes */}
                         <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
                         <Route path="/feed" element={<ProtectedRoute><Feed /></ProtectedRoute>} />
                         <Route path="/emergency" element={<ProtectedRoute><Emergency /></ProtectedRoute>} />
-                        {/*<Route path="/community" element={<ProtectedRoute><Community /></ProtectedRoute>} />*/}
                         <Route path="/topic/:id" element={<ProtectedRoute><TopicDetail /></ProtectedRoute>} />
                         <Route path="/partners" element={<ProtectedRoute><Partners /></ProtectedRoute>} />
                         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />

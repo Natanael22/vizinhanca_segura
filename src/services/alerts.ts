@@ -55,7 +55,7 @@ export async function createAlert(alert: {
 
 export async function uploadAlertPhoto(file: File): Promise<string> {
     const fileExt = file.name.split('.').pop();
-    const fileName = `${Math.random()}.${fileExt}`;
+    const fileName = `${crypto.randomUUID()}.${fileExt}`;
     const filePath = `${fileName}`;
 
     const { error: uploadError } = await supabase.storage
@@ -124,10 +124,15 @@ export async function addComment(alertId: string, content: string, authorPseudon
 }
 
 export async function resolveAlert(alertId: string): Promise<void> {
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) throw new Error('Not authenticated');
+
     const { error } = await supabase
         .from('alerts')
         .update({ status: 'resolved' })
-        .eq('id', alertId);
+        .eq('id', alertId)
+        .eq('user_id', user.id);
 
     if (error) throw error;
 }

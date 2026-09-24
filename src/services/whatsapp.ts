@@ -70,7 +70,7 @@ export async function sendOTP(phone: string, code: string) {
                 message: data.error?.message || 'Falha ao enviar código via WhatsApp.',
                 stack: data.error?.stack,
                 context: 'whatsapp.sendOTP',
-                metadata: { phone, code }
+                metadata: { phone: phone ? '***' + phone.slice(-4) : 'unknown' }
             });
             throw new Error(data.error?.message || 'Falha ao enviar código via WhatsApp.');
         }
@@ -82,7 +82,7 @@ export async function sendOTP(phone: string, code: string) {
             message: error.message,
             stack: error.stack,
             context: 'whatsapp.sendOTP',
-            metadata: { phone, code }
+            metadata: { phone: phone ? '***' + phone.slice(-4) : 'unknown' }
         });
         throw error;
     }

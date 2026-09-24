@@ -38,7 +38,6 @@ export function translateError(errorMsg: string): { title: string; message: stri
     // Exact match or partial match
     for (const key in ERROR_MESSAGES) {
         if (errorMsg.toLowerCase().includes(key.toLowerCase())) {
-            console.error('Error message found:', key);
             return ERROR_MESSAGES[key];
         }
     }
