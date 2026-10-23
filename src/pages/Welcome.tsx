@@ -32,9 +32,27 @@ export default function Welcome() {
                 </Link>
             </div>
 
-            <div className="absolute bottom-8 w-full text-center px-8">
-                <p className="text-xs text-primary-400 border-t border-primary-800 pt-4">
-                    Ao continuar, você concorda com nossos Termos de Uso e Código de Conduta.
+            <div className="absolute bottom-6 w-full text-center px-8 space-y-1">
+                <p className="text-xs text-primary-400 border-t border-primary-800 pt-3">
+                    Ao continuar, você concorda com nossos{' '}
+                    <a href="https://nex3n.com/terms" target="_blank" rel="noopener" className="underline hover:text-primary-200">
+                        Termos de Uso
+                    </a>{' '}
+                    e{' '}
+                    <a href="https://nex3n.com/privacy" target="_blank" rel="noopener" className="underline hover:text-primary-200">
+                        Política de Privacidade
+                    </a>
+                    .
+                </p>
+                <p className="text-[11px] text-primary-400">
+                    Desenvolvido por{' '}
+                    <a href="https://nex3n.com" target="_blank" rel="noopener" className="font-semibold text-accent-400 hover:underline">
+                        Nex3n
+                    </a>
+                    {' · '}
+                    <a href="https://tatamesafe.nex3n.com" target="_blank" rel="noopener" className="hover:text-primary-200 hover:underline">
+                        TatameSafe
+                    </a>
                 </p>
             </div>
         </div>

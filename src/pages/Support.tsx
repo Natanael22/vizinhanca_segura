@@ -174,7 +174,11 @@ export default function Support() {
 
                 <div className="text-center space-y-2">
                     <p className="text-sm text-primary-500">
-                        Feito com <Heart size={14} className="inline fill-red-400 text-red-400" /> para uma vizinhaça mais segura.
+                        Feito com <Heart size={14} className="inline fill-red-400 text-red-400" /> por{' '}
+                        <a href="https://nex3n.com" target="_blank" rel="noopener" className="font-semibold text-accent-600 hover:underline">
+                            Nex3n
+                        </a>{' '}
+                        para uma vizinhança mais segura.
                     </p>
                     <p className="text-xs text-primary-400">
                         Versão 1.0.0

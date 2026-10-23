@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://app.vizinhancasegura.nex3n.com/sitemap.xml
